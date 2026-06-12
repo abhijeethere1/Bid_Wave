@@ -7,27 +7,25 @@ export default function BidSection({
   totalBids,
   onBid,
   ended,
+  status,
 }) {
   const [bidAmount, setBidAmount] = useState("");
-  const [status, setStatus] = useState(null);
+  const [status2, setStatus2] = useState(null);
   const minBid = currentBid + 100;
 
   const handleBid = () => {
     const amount = parseInt(bidAmount);
     if (!amount || amount < minBid) {
-      setStatus("error");
-      setTimeout(() => setStatus(null), 3000);
+      setStatus2("error");
+      setTimeout(() => setStatus2(null), 3000);
       return;
     }
     onBid(amount);
-    setStatus("success");
     setBidAmount("");
-    setTimeout(() => setStatus(null), 3000);
   };
 
   return (
     <div>
-      {/* Current Bid */}
       <div className="mb-5">
         <p className="text-xs text-gray-400 flex items-center gap-1 mb-1">
           <TrendingUp size={12} /> Current Bid
@@ -40,20 +38,18 @@ export default function BidSection({
         </p>
       </div>
 
-      {/* Status Messages */}
-      {status === "success" && (
+      {status2 === "success" && (
         <div className="flex items-center gap-2 bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 text-green-600 dark:text-green-400 text-xs px-3 py-2.5 rounded-xl mb-3">
           <CheckCircle size={13} /> Bid placed successfully!
         </div>
       )}
-      {status === "error" && (
+      {status2 === "error" && (
         <div className="flex items-center gap-2 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-500 text-xs px-3 py-2.5 rounded-xl mb-3">
           <AlertCircle size={13} /> Minimum bid is ₹
           {minBid.toLocaleString("en-IN")}
         </div>
       )}
 
-      {/* Input + Button */}
       <div className="flex gap-2">
         <div className="relative flex-1">
           <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">
@@ -77,7 +73,6 @@ export default function BidSection({
         </button>
       </div>
 
-      {/* Quick Bids */}
       <div className="flex gap-2 mt-2.5">
         {[500, 1000, 2000].map((inc) => (
           <button
@@ -90,6 +85,10 @@ export default function BidSection({
           </button>
         ))}
       </div>
+
+      <p className="text-[11px] text-gray-400 text-center mt-2">
+        Min. bid: ₹{minBid.toLocaleString("en-IN")}
+      </p>
     </div>
   );
 }

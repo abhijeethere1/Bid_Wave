@@ -4,12 +4,14 @@ import dotenv from "dotenv";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import authRoutes from "./src/routes/authRoutes.js";
+import auctionRoutes from "./src/routes/auctionRoutes.js";
+import bidRoutes from "./src/routes/bidRoutes.js";
+import { setupSocket } from "./src/socket/bidSocket.js";
 
 dotenv.config();
 
 const app = express();
 const httpServer = createServer(app);
-
 const io = new Server(httpServer, {
   cors: {
     origin: "http://localhost:5173",
@@ -26,13 +28,11 @@ app.get("/", (req, res) => {
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/auctions", auctionRoutes);
+app.use("/api/bids", bidRoutes);
 
-io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
-  socket.on("disconnect", () => {
-    console.log("User disconnected:", socket.id);
-  });
-});
+// Socket.io
+setupSocket(io);
 
 const PORT = process.env.PORT || 5000;
 httpServer.listen(PORT, () => {

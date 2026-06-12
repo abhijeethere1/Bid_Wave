@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import { DUMMY_AUCTIONS } from "../utils/dummyData";
+import { useSocket } from "../hooks/useSocket";
+import { useAuth } from "../context/AuthContext";
 import useCountdown from "../hooks/useCountdown";
+import toast from "react-hot-toast";
 
 import AuctionImages from "../components/auction/AuctionImages";
 import AuctionMeta from "../components/auction/AuctionMeta";
@@ -21,15 +24,40 @@ const INITIAL_BIDS = [
 
 export default function AuctionDetail() {
   const { id } = useParams();
+  const { user } = useAuth();
   const auction = DUMMY_AUCTIONS.find((a) => a.id === parseInt(id));
   const { ended } = useCountdown(auction?.endsAt);
   const [bids, setBids] = useState(INITIAL_BIDS);
 
-  const handleBid = (amount) => {
+  // Handle incoming real-time bid
+  const handleNewBid = (data) => {
     setBids((prev) => [
-      { id: Date.now(), user: "You", amount, time: "just now" },
+      {
+        id: data.bidId,
+        user: data.bidderName,
+        amount: data.amount,
+        time: "just now",
+      },
       ...prev,
     ]);
+    toast.success(`New bid: ₹${data.amount.toLocaleString("en-IN")}`);
+  };
+
+  // Handle bid error from socket
+  const handleBidError = (message) => {
+    toast.error(message);
+  };
+
+  // Connect socket
+  const { placeBid } = useSocket(String(id), handleNewBid, handleBidError);
+
+  // Place bid — send via socket
+  const handleBid = (amount) => {
+    if (!user) {
+      toast.error("Please login to place a bid");
+      return;
+    }
+    placeBid(amount, user.id, user.name);
   };
 
   if (!auction)
@@ -42,7 +70,6 @@ export default function AuctionDetail() {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors duration-300">
       <div className="max-w-5xl mx-auto px-6 py-8">
-        {/* Back */}
         <Link
           to="/auctions"
           className="inline-flex items-center gap-1 text-sm text-gray-400 hover:text-orange-500 transition-colors mb-8"
@@ -51,10 +78,8 @@ export default function AuctionDetail() {
         </Link>
 
         <div className="grid md:grid-cols-2 gap-12">
-          {/* ── LEFT ── */}
           <div className="space-y-8">
             <AuctionImages image={auction.image} title={auction.title} />
-
             <div>
               <p className="text-sm font-semibold text-gray-900 dark:text-white mb-2">
                 Description
@@ -63,42 +88,32 @@ export default function AuctionDetail() {
                 {auction.description}
               </p>
             </div>
-
             <div className="border-t border-gray-100 dark:border-gray-800 pt-6">
               <BidHistory bids={bids} />
             </div>
           </div>
 
-          {/* ── RIGHT ── */}
           <div className="space-y-6">
             <AuctionMeta
               title={auction.title}
               category={auction.category}
               seller={auction.seller}
             />
-
             <div className="border-t border-gray-100 dark:border-gray-800" />
-
             <BidSection
-              currentBid={bids[0].amount}
+              currentBid={bids[0]?.amount || auction.currentBid}
               startingBid={auction.startingBid}
-              totalBids={
-                auction.totalBids + bids.filter((b) => b.user === "You").length
-              }
+              totalBids={bids.length}
               onBid={handleBid}
               ended={ended}
             />
-
             <div className="border-t border-gray-100 dark:border-gray-800" />
-
             <AuctionTimer endsAt={auction.endsAt} />
-
             <div className="border-t border-gray-100 dark:border-gray-800" />
-
             <DeliveryInfo
               size={auction.size}
               deliveryCharge={auction.deliveryCharge}
-              currentBid={bids[0].amount}
+              currentBid={bids[0]?.amount || auction.currentBid}
             />
           </div>
         </div>
