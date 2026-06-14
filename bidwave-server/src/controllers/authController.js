@@ -1,6 +1,69 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import supabase from "../config/db.js";
+import { OAuth2Client } from "google-auth-library";
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+export const googleAuth = async (req, res) => {
+  const { accessToken, role = "buyer" } = req.body;
+
+  try {
+    const googleRes = await fetch(
+      "https://www.googleapis.com/oauth2/v3/userinfo",
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      },
+    );
+    const { name, email } = await googleRes.json();
+
+    if (!email) {
+      return res
+        .status(400)
+        .json({ message: "Could not get user info from Google" });
+    }
+
+    // Check if user already exists
+    let { data: user } = await supabase
+      .from("users")
+      .select("*")
+      .eq("email", email)
+      .single();
+
+    // Create new user with selected role if doesn't exist
+    if (!user) {
+      const { data: newUser, error } = await supabase
+        .from("users")
+        .insert([
+          {
+            name,
+            email,
+            password: "GOOGLE_AUTH",
+            role, // ← uses selected role
+          },
+        ])
+        .select()
+        .single();
+
+      if (error) throw error;
+      user = newUser;
+    }
+
+    res.json({
+      message: "Google login successful",
+      token: generateToken(user),
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (err) {
+    console.error("Google auth error:", err.message);
+    res.status(401).json({ message: "Google authentication failed" });
+  }
+};
 
 // Generate JWT token
 const generateToken = (user) => {
