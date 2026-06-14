@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Sparkles, CheckCircle } from "lucide-react";
+import toast from "react-hot-toast";
+import api from "../utils/api";
 import ImageUpload from "../components/sell/ImageUpload";
 import ItemDetails from "../components/sell/ItemDetails";
 import SizeSelector from "../components/sell/SizeSelector";
@@ -23,10 +25,11 @@ export default function SellItem() {
   const updateForm = (key, value) =>
     setForm((prev) => ({ ...prev, [key]: value }));
 
-  // AI Description Generator
+  // ── AI Description Generator ──
   const handleAIGenerate = async (imageObj) => {
     setAiLoading(true);
     try {
+      // Convert image to base64
       const base64 = await new Promise((res, rej) => {
         const reader = new FileReader();
         reader.onload = () => res(reader.result.split(",")[1]);
@@ -34,48 +37,28 @@ export default function SellItem() {
         reader.readAsDataURL(imageObj.file);
       });
 
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 500,
-          messages: [
-            {
-              role: "user",
-              content: [
-                {
-                  type: "image",
-                  source: {
-                    type: "base64",
-                    media_type: "image/jpeg",
-                    data: base64,
-                  },
-                },
-                {
-                  type: "text",
-                  text: `You are helping a seller list an item on an auction platform. Analyze this image and respond ONLY with a JSON object like this:
-{
-  "title": "concise product title",
-  "description": "2-3 sentence description mentioning condition, key features, and what makes it valuable",
-  "category": "one of: Electronics, Accessories, Furniture, Home Decor, Sports, Fashion, Books, Other"
-}
-No extra text, just the JSON.`,
-                },
-              ],
-            },
-          ],
-        }),
-      });
+      // Get media type
+      const mediaType = imageObj.file.type || "image/jpeg";
 
-      const data = await response.json();
-      const text = data.content[0].text;
-      const parsed = JSON.parse(text);
-      updateForm("title", parsed.title);
-      updateForm("description", parsed.description);
-      updateForm("category", parsed.category);
+      // Call our backend (not Claude directly)
+      const response = await api.post("/ai/describe", {
+        imageBase64: base64,
+        mediaType,
+      });
+      const result = response.data;
+
+      // Auto fill the form
+      if (result.title) updateForm("title", result.title);
+      if (result.description) updateForm("description", result.description);
+      if (result.category) updateForm("category", result.category);
+      if (result.suggestedPrice && !form.startingPrice) {
+        updateForm("startingPrice", result.suggestedPrice);
+      }
+
+      toast.success("AI filled in your listing details!");
     } catch (err) {
       console.error("AI error:", err);
+      toast.error("AI generation failed. Please fill in manually.");
     }
     setAiLoading(false);
   };
@@ -124,59 +107,56 @@ No extra text, just the JSON.`,
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors duration-300">
       <div className="max-w-2xl mx-auto px-6 py-10">
-        {/* Header */}
-        <div className="mb-8">
+        <div className="mb-8 ml-2">
           <h1 className="text-2xl font-black text-gray-900 dark:text-white">
             List an Item
           </h1>
           <p className="text-sm text-gray-400 mt-1">
-            Fill in the details below. Upload a photo and let AI fill the rest.
+            Upload a photo and let AI fill the rest.
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Images */}
           <ImageUpload
             onImagesChange={setImages}
             onAIGenerate={handleAIGenerate}
             aiLoading={aiLoading}
           />
 
-          {/* AI Banner */}
+          {/* AI Loading Banner */}
           {aiLoading && (
             <div className="flex items-center gap-3 bg-orange-50 dark:bg-orange-500/10 border border-orange-100 dark:border-orange-500/20 rounded-xl px-4 py-3">
               <Sparkles
                 size={16}
                 className="text-orange-500 animate-pulse shrink-0"
               />
-              <p className="text-sm text-orange-600 dark:text-orange-400">
-                AI is analyzing your photo and generating details...
-              </p>
+              <div>
+                <p className="text-sm font-medium text-orange-600 dark:text-orange-400">
+                  AI is analyzing your photo...
+                </p>
+                <p className="text-xs text-orange-400 dark:text-orange-500 mt-0.5">
+                  This usually takes 3-5 seconds
+                </p>
+              </div>
             </div>
           )}
 
           <div className="border-t border-gray-100 dark:border-gray-800" />
-
-          {/* Item Details */}
           <ItemDetails form={form} onChange={updateForm} />
 
           <div className="border-t border-gray-100 dark:border-gray-800" />
-
-          {/* Size */}
           <SizeSelector
             value={form.size}
             onChange={(v) => updateForm("size", v)}
           />
 
           <div className="border-t border-gray-100 dark:border-gray-800" />
-
-          {/* Pricing */}
           <PricingSection form={form} onChange={updateForm} />
 
-          {/* Summary Box */}
+          {/* Summary */}
           {form.startingPrice && form.size && form.duration && (
-            <div className="bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-5 space-y-2.5">
-              <p className="text-sm font-bold text-gray-900 dark:text-white mb-3">
+            <div className="bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-5 space-y-3">
+              <p className="text-sm font-bold text-gray-900 dark:text-white mb-1">
                 Listing Summary
               </p>
               {[
@@ -190,7 +170,13 @@ No extra text, just the JSON.`,
                 },
                 {
                   label: "Duration",
-                  value: `${form.duration >= 24 ? `${form.duration / 24} day(s)` : `${form.duration} hour(s)`}`,
+                  value: new Date(form.duration).toLocaleString("en-IN", {
+                    weekday: "short",
+                    day: "numeric",
+                    month: "short",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  }),
                 },
               ].map((row) => (
                 <div
@@ -206,10 +192,9 @@ No extra text, just the JSON.`,
             </div>
           )}
 
-          {/* Submit */}
           <button
             type="submit"
-            className="w-full py-3.5 bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm rounded-xl shadow-lg shadow-orange-500/20 hover:shadow-orange-500/40 transition-all duration-200"
+            className="w-full py-3.5 bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm rounded-xl shadow-lg shadow-orange-500/20 transition-all"
           >
             List Item for Auction
           </button>

@@ -4,11 +4,20 @@ import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
 
-const navLinks = [
-  { label: "Live Auctions", to: "/auctions" },
-  { label: "Sell Item", to: "/sell" },
-  { label: "How it Works", to: "/how-it-works" },
-];
+const getNavLinks = (user) => {
+  const links = [{ label: "How it Works", to: "/how-it-works" }];
+
+  if (user?.role === "buyer") {
+    links.unshift({ label: "Live Auctions", to: "/auctions" });
+  }
+
+  if (user?.role === "seller") {
+    links.unshift({ label: "Sell Item", to: "/sell" });
+    links.unshift({ label: "Live Auctions", to: "/auctions" });
+  }
+
+  return links;
+};
 
 function Navbar() {
   const { isDark, toggleTheme } = useTheme();
@@ -38,18 +47,18 @@ function Navbar() {
 
         {/* Nav Links */}
         <div className="hidden md:flex items-center bg-gray-100/80 dark:bg-gray-900/80 rounded-xl p-1 gap-0.5">
-          {navLinks.map((link) => {
+          {getNavLinks(user).map((link) => {
             const isActive = location.pathname === link.to;
             return (
               <Link
                 key={link.to}
                 to={link.to}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
-                  ${
-                    isActive
-                      ? "bg-white dark:bg-gray-800 text-orange-500 shadow-sm"
-                      : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                  }`}
+          ${
+            isActive
+              ? "bg-white dark:bg-gray-800 text-orange-500 shadow-sm"
+              : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+          }`}
               >
                 {link.label}
               </Link>

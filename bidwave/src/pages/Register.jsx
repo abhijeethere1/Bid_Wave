@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff, User, Phone } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
+import { GoogleLogin } from "@react-oauth/google";
+import { useGoogleLogin } from "@react-oauth/google";
 
 function Register() {
   const [showPassword, setShowPassword] = useState(false);
@@ -15,7 +17,21 @@ function Register() {
   });
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
+  const { googleLogin } = useAuth();
   const navigate = useNavigate();
+
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (response) => {
+      try {
+        await googleLogin(response.access_token, role); // ← pass role
+        toast.success("Welcome to BidWave!");
+        navigate("/");
+      } catch {
+        toast.error("Google login failed");
+      }
+    },
+    onError: () => toast.error("Google login failed"),
+  });
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -163,8 +179,12 @@ function Register() {
             <div className="flex-1 h-px bg-gray-100 dark:bg-gray-800" />
           </div>
 
-          <button className="w-full py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm font-medium flex items-center justify-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all">
-            <svg className="w-4 h-4" viewBox="0 0 24 24">
+          <button
+            type="button"
+            onClick={() => handleGoogleLogin()}
+            className="w-full py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm font-medium flex items-center justify-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200"
+          >
+            <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
               <path
                 fill="#4285F4"
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"

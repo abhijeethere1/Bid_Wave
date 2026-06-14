@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Upload, ImagePlus, X, Sparkles, Loader } from "lucide-react";
+import { ImagePlus, X, Sparkles, Loader } from "lucide-react";
 
 export default function ImageUpload({
   onImagesChange,
@@ -34,9 +34,8 @@ export default function ImageUpload({
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
-        <label className="text-sm font-semibold text-gray-900 dark:text-white">
-          Item Photos
-          <span className="text-red-500 ml-0.5">*</span>
+        <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+          Item Photos <span className="text-red-500">*</span>
         </label>
         {images.length > 0 && (
           <button
@@ -47,7 +46,7 @@ export default function ImageUpload({
           >
             {aiLoading ? (
               <>
-                <Loader size={12} className="animate-spin" /> Generating...
+                <Loader size={12} className="animate-spin" /> Analyzing...
               </>
             ) : (
               <>
@@ -91,7 +90,7 @@ export default function ImageUpload({
             <div
               key={img.id}
               className="relative group rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700"
-              style={{ height: "800px" }}
+              style={{ height: "80px" }}
             >
               <img
                 src={img.preview}
