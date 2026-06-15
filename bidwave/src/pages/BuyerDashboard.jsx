@@ -1,18 +1,84 @@
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { ShoppingBag, Trophy, Wallet, Package } from "lucide-react";
 import DashboardHeader from "../components/dashboard/DashboardHeader";
 import StatsGrid from "../components/dashboard/StatsGrid";
 import SectionHeader from "../components/dashboard/SectionHeader";
 import OrderCard from "../components/dashboard/OrderCard";
-import { BUYER_ORDERS } from "../utils/dashboardData";
-
-const STATS = [
-  { label: "Active Bids", value: "4", icon: <ShoppingBag size={15} /> },
-  { label: "Auctions Won", value: "12", icon: <Trophy size={15} /> },
-  { label: "Total Spent", value: "₹1.2L", icon: <Wallet size={15} /> },
-  { label: "Items Received", value: "11", icon: <Package size={15} /> },
-];
+import api from "../utils/api";
 
 export default function BuyerDashboard() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api
+      .get("/dashboard/buyer")
+      .then((res) => setData(res.data))
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading)
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-gray-400">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+
+  const stats = [
+    {
+      label: "Active Bids",
+      value: String(data?.stats.activeBids || 0),
+      icon: <ShoppingBag size={15} />,
+    },
+    {
+      label: "Auctions Won",
+      value: String(data?.stats.auctionsWon || 0),
+      icon: <Trophy size={15} />,
+    },
+    {
+      label: "Total Spent",
+      value: `₹${(data?.stats.totalSpent || 0).toLocaleString("en-IN")}`,
+      icon: <Wallet size={15} />,
+    },
+    {
+      label: "Items Received",
+      value: String(data?.stats.itemsReceived || 0),
+      icon: <Package size={15} />,
+    },
+  ];
+
+  // Map payment status to order card status
+  const mapStatus = (payment) => {
+    if (payment.status === "pending") return "payment_pending";
+    if (payment.status === "paid") return "awaiting_item";
+    if (payment.status === "released") return "delivered";
+    return "in_transit";
+  };
+
+  const orders =
+    data?.orders?.map((payment) => ({
+      id: payment.id,
+      title: payment.auction?.title || "Auction Item",
+      image:
+        payment.auction?.images?.[0] ||
+        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100&fit=crop",
+      amount: payment.auction_amount,
+      delivery: payment.delivery_charge,
+      status: mapStatus(payment),
+      date: new Date(payment.created_at).toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }),
+      totalAmount: payment.total_amount,
+      auctionId: payment.auction_id,
+    })) || [];
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors duration-300">
       <div className="max-w-3xl mx-auto px-6 py-10">
@@ -23,15 +89,33 @@ export default function BuyerDashboard() {
           actionTo="/auctions"
         />
 
-        <StatsGrid stats={STATS} />
+        <StatsGrid stats={stats} />
 
-        <SectionHeader title="My Orders" count={BUYER_ORDERS.length} />
+        <SectionHeader title="My Orders" count={orders.length} />
 
-        <div className="ml-2 flex flex-col gap-4">
-          {BUYER_ORDERS.map((order) => (
-            <OrderCard key={order.id} order={order} />
-          ))}
-        </div>
+        {orders.length === 0 ? (
+          <div className="text-center py-16 ml-2">
+            <p className="text-3xl mb-3">🎯</p>
+            <p className="text-sm font-bold text-gray-900 dark:text-white">
+              No orders yet
+            </p>
+            <p className="text-xs text-gray-400 mt-1">
+              Win an auction to see your orders here
+            </p>
+            <Link
+              to="/auctions"
+              className="inline-block mt-4 px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold rounded-xl transition-all"
+            >
+              Browse Auctions
+            </Link>
+          </div>
+        ) : (
+          <div className="ml-2 flex flex-col gap-4">
+            {orders.map((order) => (
+              <OrderCard key={order.id} order={order} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

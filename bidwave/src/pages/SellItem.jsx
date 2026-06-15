@@ -13,6 +13,7 @@ export default function SellItem() {
   const [images, setImages] = useState([]);
   const [aiLoading, setAiLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -63,9 +64,56 @@ export default function SellItem() {
     setAiLoading(false);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
+
+    if (
+      !form.title ||
+      !form.category ||
+      !form.size ||
+      !form.startingPrice ||
+      !form.duration
+    ) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Upload images first
+      const imageUrls = [];
+      for (const img of images) {
+        const base64 = await new Promise((res, rej) => {
+          const reader = new FileReader();
+          reader.onload = () => res(reader.result.split(",")[1]);
+          reader.onerror = rej;
+          reader.readAsDataURL(img.file);
+        });
+
+        const uploadRes = await api.post("/upload", {
+          imageBase64: base64,
+          mediaType: img.file.type || "image/jpeg",
+        });
+        imageUrls.push(uploadRes.data.url);
+      }
+
+      // Create auction with image URLs
+      await api.post("/auctions", {
+        title: form.title,
+        description: form.description,
+        category: form.category,
+        size: form.size,
+        starting_price: parseInt(form.startingPrice),
+        ends_at: new Date(form.duration).toISOString(),
+        images: imageUrls,
+      });
+
+      toast.success("Auction listed successfully!");
+      setSubmitted(true);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to list auction");
+    }
+    setLoading(false);
   };
 
   const deliveryFee = DELIVERY_FEES[form.size];
@@ -194,9 +242,10 @@ export default function SellItem() {
 
           <button
             type="submit"
-            className="w-full py-3.5 bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm rounded-xl shadow-lg shadow-orange-500/20 transition-all"
+            disabled={loading}
+            className="w-full py-3.5 bg-orange-500 hover:bg-orange-600 disabled:opacity-60 text-white font-bold text-sm rounded-xl shadow-lg shadow-orange-500/20 transition-all duration-200"
           >
-            List Item for Auction
+            {loading ? "Listing..." : "List Item for Auction"}
           </button>
         </form>
       </div>

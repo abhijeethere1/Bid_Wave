@@ -1,23 +1,40 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import AuctionCard from "../components/AuctionCard";
-import { DUMMY_AUCTIONS, CATEGORIES, SIZES } from "../utils/dummyData";
+import { CATEGORIES, SIZES } from "../utils/dummyData";
+import api from "../utils/api";
 
 function Auctions() {
+  const [auctions, setAuctions] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedSize, setSelectedSize] = useState("All");
   const [sortBy, setSortBy] = useState("ending_soon");
   const [showFilters, setShowFilters] = useState(false);
 
+  // Fetch real auctions from backend
+  useEffect(() => {
+    const fetchAuctions = async () => {
+      try {
+        const res = await api.get("/auctions");
+        setAuctions(res.data);
+      } catch (err) {
+        console.error("Failed to fetch auctions:", err);
+      }
+      setLoading(false);
+    };
+    fetchAuctions();
+  }, []);
+
   const filtered = useMemo(() => {
-    let result = [...DUMMY_AUCTIONS];
+    let result = [...auctions];
 
     if (search) {
       result = result.filter(
         (a) =>
           a.title.toLowerCase().includes(search.toLowerCase()) ||
-          a.category.toLowerCase().includes(search.toLowerCase()),
+          a.category?.toLowerCase().includes(search.toLowerCase()),
       );
     }
 
@@ -30,15 +47,15 @@ function Auctions() {
     }
 
     if (sortBy === "ending_soon") {
-      result.sort((a, b) => new Date(a.endsAt) - new Date(b.endsAt));
+      result.sort((a, b) => new Date(a.ends_at) - new Date(b.ends_at));
     } else if (sortBy === "highest_bid") {
-      result.sort((a, b) => b.currentBid - a.currentBid);
+      result.sort((a, b) => b.current_price - a.current_price);
     } else if (sortBy === "most_bids") {
-      result.sort((a, b) => b.totalBids - a.totalBids);
+      result.sort((a, b) => b.total_bids - a.total_bids);
     }
 
     return result;
-  }, [search, selectedCategory, selectedSize, sortBy]);
+  }, [auctions, search, selectedCategory, selectedSize, sortBy]);
 
   const clearFilters = () => {
     setSearch("");
@@ -50,11 +67,21 @@ function Auctions() {
   const hasFilters =
     search || selectedCategory !== "All" || selectedSize !== "All";
 
+  if (loading)
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-gray-400">Loading auctions...</p>
+        </div>
+      </div>
+    );
+
   return (
     <div className="bg-orange-50 dark:bg-gray-950 min-h-screen transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-6 py-10">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-8 ml-2">
           <h1 className="text-3xl font-black text-gray-900 dark:text-white">
             Live Auctions
           </h1>
@@ -65,7 +92,6 @@ function Auctions() {
 
         {/* Search + Filter Bar */}
         <div className="bg-white dark:bg-gray-900 border border-orange-100 dark:border-gray-800 rounded-2xl p-4 mb-6 flex flex-col md:flex-row gap-3">
-          {/* Search */}
           <div className="relative flex-1">
             <Search
               size={15}
@@ -80,7 +106,6 @@ function Auctions() {
             />
           </div>
 
-          {/* Sort */}
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
@@ -91,7 +116,6 @@ function Auctions() {
             <option value="most_bids">Most Bids</option>
           </select>
 
-          {/* Filter Toggle */}
           <button
             onClick={() => setShowFilters(!showFilters)}
             className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl border transition-all duration-200
@@ -109,7 +133,6 @@ function Auctions() {
         {/* Expanded Filters */}
         {showFilters && (
           <div className="bg-white dark:bg-gray-900 border border-orange-100 dark:border-gray-800 rounded-2xl p-5 mb-6 flex flex-col md:flex-row gap-6">
-            {/* Category */}
             <div className="flex-1">
               <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
                 Category
@@ -132,7 +155,6 @@ function Auctions() {
               </div>
             </div>
 
-            {/* Size */}
             <div>
               <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
                 Item Size
@@ -198,7 +220,17 @@ function Auctions() {
         {filtered.length > 0 ? (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {filtered.map((auction) => (
-              <AuctionCard key={auction.id} auction={auction} />
+              <AuctionCard
+                key={auction.id}
+                auction={{
+                  ...auction,
+                  currentBid: auction.current_price,
+                  startingBid: auction.starting_price,
+                  totalBids: auction.total_bids,
+                  endsAt: auction.ends_at,
+                  deliveryCharge: auction.delivery_charge,
+                }}
+              />
             ))}
           </div>
         ) : (

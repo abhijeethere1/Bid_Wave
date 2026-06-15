@@ -1,8 +1,15 @@
 import { useState } from "react";
 
-export default function AuctionImages({ image, title }) {
+export default function AuctionImages({ images = [], title }) {
   const [active, setActive] = useState(0);
-  const images = [image, image, image];
+
+  // Fallback if no images
+  const displayImages =
+    images.length > 0
+      ? images
+      : [
+          "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&fit=crop",
+        ];
 
   return (
     <div>
@@ -12,26 +19,32 @@ export default function AuctionImages({ image, title }) {
         style={{ height: "320px" }}
       >
         <img
-          src={images[active]}
+          src={displayImages[active]}
           alt={title}
           className="w-full h-full object-cover"
         />
       </div>
 
-      {/* Thumbnails */}
-      <div className="flex gap-2 mt-3">
-        {images.map((img, i) => (
-          <button
-            key={i}
-            onClick={() => setActive(i)}
-            className={`rounded-xl overflow-hidden border-2 transition-all shrink-0
-              ${active === i ? "border-orange-500" : "border-gray-200 dark:border-gray-700 opacity-50 hover:opacity-80"}`}
-            style={{ width: 64, height: 64 }}
-          >
-            <img src={img} alt="" className="w-full h-full object-cover" />
-          </button>
-        ))}
-      </div>
+      {/* Thumbnails — only show if more than 1 image */}
+      {displayImages.length > 1 && (
+        <div className="flex gap-2 mt-3">
+          {displayImages.map((img, i) => (
+            <button
+              key={i}
+              onClick={() => setActive(i)}
+              className={`rounded-xl overflow-hidden border-2 transition-all shrink-0
+                ${
+                  active === i
+                    ? "border-orange-500"
+                    : "border-gray-200 dark:border-gray-700 opacity-50 hover:opacity-80"
+                }`}
+              style={{ width: 64, height: 64 }}
+            >
+              <img src={img} alt="" className="w-full h-full object-cover" />
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

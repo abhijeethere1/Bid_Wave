@@ -94,3 +94,33 @@ export const createAuction = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+export const getAuctionResults = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const { data, error } = await supabase
+      .from("auctions")
+      .select(
+        `
+        *,
+        bids(
+          id, amount, created_at,
+          bidder:users(id, name)
+        )
+      `,
+      )
+      .eq("id", id)
+      .single();
+
+    if (error) throw error;
+
+    // Sort bids by amount descending
+    if (data.bids) {
+      data.bids.sort((a, b) => b.amount - a.amount);
+    }
+
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

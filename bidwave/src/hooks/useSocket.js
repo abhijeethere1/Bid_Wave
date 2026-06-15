@@ -3,7 +3,7 @@ import { io } from "socket.io-client";
 
 const SOCKET_URL = "http://localhost:5000";
 
-export function useSocket(auctionId, onNewBid, onBidError) {
+export function useSocket(auctionId, onNewBid, onBidError, onAuctionEnded) {
   const socketRef = useRef(null);
 
   useEffect(() => {
@@ -14,20 +14,22 @@ export function useSocket(auctionId, onNewBid, onBidError) {
     });
 
     socketRef.current.on("connect_error", (err) => {
-      console.log("❌ Socket connection error:", err.message);
+      console.log("❌ Socket error:", err.message);
     });
 
     socketRef.current.emit("join_auction", auctionId);
-    console.log("✅ Joining auction room:", auctionId);
 
     socketRef.current.on("new_bid", (data) => {
-      console.log("✅ New bid received:", data);
       onNewBid(data);
     });
 
     socketRef.current.on("bid_error", (data) => {
-      console.log("❌ Bid error:", data);
       onBidError(data.message);
+    });
+
+    // Listen for auction end
+    socketRef.current.on("auction_ended", (data) => {
+      if (onAuctionEnded) onAuctionEnded(data);
     });
 
     return () => {
@@ -37,12 +39,6 @@ export function useSocket(auctionId, onNewBid, onBidError) {
   }, [auctionId]);
 
   const placeBid = (amount, userId, userName) => {
-    console.log("✅ Placing bid via socket:", {
-      auctionId,
-      amount,
-      userId,
-      userName,
-    });
     socketRef.current.emit("place_bid", {
       auctionId,
       amount,

@@ -15,7 +15,11 @@ function AuctionCard({ auction }) {
         {/* Image */}
         <div className="relative overflow-hidden h-48">
           <img
-            src={auction.image}
+            src={
+              auction.images?.[0] ||
+              auction.image ||
+              "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&fit=crop"
+            }
             alt={auction.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />

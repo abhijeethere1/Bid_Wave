@@ -7,8 +7,12 @@ import authRoutes from "./src/routes/authRoutes.js";
 import auctionRoutes from "./src/routes/auctionRoutes.js";
 import bidRoutes from "./src/routes/bidRoutes.js";
 import aiRoutes from "./src/routes/aiRoutes.js";
-import { setupSocket } from "./src/socket/bidSocket.js";
 import chatRoutes from "./src/routes/chatRoutes.js";
+import { setupSocket } from "./src/socket/bidSocket.js";
+import { startAuctionExpiryJob } from "./src/jobs/auctionExpiry.js";
+import dashboardRoutes from "./src/routes/dashboardRoutes.js";
+import uploadRoutes from "./src/routes/uploadRoutes.js";
+
 dotenv.config();
 
 const app = express();
@@ -32,9 +36,15 @@ app.use("/api/auctions", auctionRoutes);
 app.use("/api/bids", bidRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/upload", uploadRoutes);
+
 setupSocket(io);
+
+// Start cron job — pass io so it can broadcast
+startAuctionExpiryJob(io);
 
 const PORT = process.env.PORT || 5000;
 httpServer.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`✅ Server running on port ${PORT}`);
 });
