@@ -9,6 +9,7 @@ import {
   BadgeCheck,
   Timer,
 } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 const STEPS_BUYER = [
   {
@@ -114,6 +115,7 @@ function StepCard({ step, icon, title, desc }) {
 }
 
 export default function HowItWorks() {
+  const { user } = useAuth();
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors duration-300">
       <div className="max-w-4xl mx-auto px-6 py-12">
@@ -223,12 +225,14 @@ export default function HowItWorks() {
             Join thousands of buyers and sellers on BidWave.
           </p>
           <div className="flex items-center justify-center gap-3 mt-6">
-            <Link
-              to="/register"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold text-sm rounded-xl transition-all shadow-md shadow-orange-500/20"
-            >
-              Create Free Account <ArrowRight size={16} />
-            </Link>
+            {!user && (
+              <Link
+                to="/register"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold text-sm rounded-xl transition-all shadow-md shadow-orange-500/20"
+              >
+                Create Free Account <ArrowRight size={16} />
+              </Link>
+            )}
             <Link
               to="/auctions"
               className="inline-flex items-center gap-2 px-6 py-3 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 font-semibold text-sm rounded-xl hover:border-orange-300 transition-all"
