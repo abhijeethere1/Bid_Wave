@@ -1,5 +1,5 @@
 import StatusBadge from "./StatusBadge";
-
+import { Link } from "react-router-dom";
 const STEPS = {
   payment_pending: { step: 1, label: "Complete payment to confirm win" },
   awaiting_item: { step: 2, label: "Seller is shipping to our center" },
@@ -18,9 +18,12 @@ export default function OrderCard({ order }) {
           <p className="text-xs font-medium text-orange-600 dark:text-orange-400">
             ⚡ Action required — complete payment to secure this item
           </p>
-          <button className="ml-4 px-4 py-1.5 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold rounded-lg transition-all whitespace-nowrap">
+          <Link
+            to={`/payment/${order.paymentId}`}
+            className="ml-4 px-4 py-1.5 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold rounded-lg transition-all whitespace-nowrap shadow-sm shadow-orange-500/20"
+          >
             Pay Now →
-          </button>
+          </Link>
         </div>
       )}
 

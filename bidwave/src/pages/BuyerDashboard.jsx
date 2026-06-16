@@ -63,6 +63,7 @@ export default function BuyerDashboard() {
   const orders =
     data?.orders?.map((payment) => ({
       id: payment.id,
+      paymentId: payment.id, // ← add this
       title: payment.auction?.title || "Auction Item",
       image:
         payment.auction?.images?.[0] ||

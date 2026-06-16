@@ -12,6 +12,7 @@ import SellItem from "./pages/SellItem";
 import BuyerDashboard from "./pages/BuyerDashboard";
 import SellerDashboard from "./pages/SellerDashboard";
 import HowItWorks from "./pages/HowItWorks";
+import Payment from "./pages/Payment";
 
 function App() {
   return (
@@ -35,7 +36,14 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-
+          <Route
+            path="/payment/:paymentId"
+            element={
+              <ProtectedRoute>
+                <Payment />
+              </ProtectedRoute>
+            }
+          />
           {/* Protected Routes */}
           <Route
             path="/auctions"
