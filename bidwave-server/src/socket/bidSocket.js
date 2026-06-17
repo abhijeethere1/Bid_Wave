@@ -1,5 +1,6 @@
 import supabase from "../config/db.js";
 import redis from "../config/redis.js";
+import { analyzeBid } from "../services/fraudDetection.js";
 
 export const setupSocket = (io) => {
   io.on("connection", (socket) => {
@@ -14,21 +15,19 @@ export const setupSocket = (io) => {
       try {
         console.log("✅ Bid received:", { auctionId, amount, userName });
 
-        // Try to find auction in DB
         const { data: auction } = await supabase
           .from("auctions")
           .select("*")
           .eq("id", auctionId)
           .single();
 
-        // If auction exists in DB, validate properly
         if (auction) {
           if (auction.status !== "live") {
-            socket.emit("bid_error", { message: "Auction has ended" });
+            socket.emit("bid_error", { message: "Auction is not live" });
             return;
           }
           if (new Date(auction.ends_at) < new Date()) {
-            socket.emit("bid_error", { message: "Auction time has expired" });
+            socket.emit("bid_error", { message: "Auction has ended" });
             return;
           }
           if (amount <= auction.current_price) {
@@ -44,11 +43,14 @@ export const setupSocket = (io) => {
             return;
           }
 
-          // Save to DB
-          await supabase
+          // Save bid
+          const { data: bid } = await supabase
             .from("bids")
-            .insert([{ auction_id: auctionId, bidder_id: userId, amount }]);
+            .insert([{ auction_id: auctionId, bidder_id: userId, amount }])
+            .select()
+            .single();
 
+          // Update auction
           await supabase
             .from("auctions")
             .update({
@@ -57,11 +59,30 @@ export const setupSocket = (io) => {
             })
             .eq("id", auctionId);
 
+          // Update Redis
           await redis.set(`auction:${auctionId}:current_bid`, amount);
           await redis.del(`auction:${auctionId}`);
+
+          // ── Run Fraud Detection ──
+          const fraudResult = await analyzeBid({
+            auction,
+            bid,
+            bidderId: userId,
+            bidAmount: amount,
+          });
+
+          // Notify admin if flagged
+          if (fraudResult.flagged) {
+            io.to("admin_room").emit("auction_flagged", {
+              auctionId,
+              riskScore: fraudResult.riskScore,
+              reasons: fraudResult.reasons,
+              bidderName: userName,
+            });
+          }
         }
 
-        // Whether in DB or dummy — broadcast to all in room
+        // Broadcast bid to all users in room
         io.to(auctionId).emit("new_bid", {
           auctionId,
           amount,
@@ -72,13 +93,18 @@ export const setupSocket = (io) => {
 
         console.log(`✅ Broadcasted bid ₹${amount} to room ${auctionId}`);
       } catch (err) {
-        console.log("❌ Socket error:", err.message);
+        console.error("❌ Socket error:", err.message);
         socket.emit("bid_error", { message: err.message });
       }
     });
 
     socket.on("leave_auction", (auctionId) => {
       socket.leave(auctionId);
+    });
+
+    socket.on("join_admin", () => {
+      socket.join("admin_room");
+      console.log("✅ Admin joined admin_room");
     });
 
     socket.on("disconnect", () => {

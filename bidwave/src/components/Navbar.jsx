@@ -16,6 +16,11 @@ const getNavLinks = (user) => {
     links.unshift({ label: "Live Auctions", to: "/auctions" });
   }
 
+  if (user?.role === "admin") {
+    links.unshift({ label: "Admin Panel", to: "/admin" });
+    links.unshift({ label: "Auctions", to: "/auctions" });
+  }
+
   return links;
 };
 

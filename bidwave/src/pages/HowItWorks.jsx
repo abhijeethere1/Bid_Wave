@@ -117,7 +117,7 @@ function StepCard({ step, icon, title, desc }) {
 export default function HowItWorks() {
   const { user } = useAuth();
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors duration-300">
+    <div className="min-h-screen bg-orange-50 dark:bg-gray-950 transition-colors duration-300">
       <div className="max-w-4xl mx-auto px-6 py-12">
         {/* Header */}
         <div className="text-center mb-14 ml-2">

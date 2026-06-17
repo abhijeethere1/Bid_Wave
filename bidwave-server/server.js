@@ -13,6 +13,7 @@ import dashboardRoutes from "./src/routes/dashboardRoutes.js";
 import paymentRoutes from "./src/routes/paymentRoutes.js";
 import { setupSocket } from "./src/socket/bidSocket.js";
 import { startAuctionExpiryJob } from "./src/jobs/auctionExpiry.js";
+import adminRoutes from "./src/routes/adminRoutes.js";
 
 dotenv.config();
 
@@ -40,6 +41,7 @@ app.use("/api/chat", chatRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/admin", adminRoutes);
 
 setupSocket(io);
 startAuctionExpiryJob(io);

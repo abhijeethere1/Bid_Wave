@@ -13,6 +13,7 @@ import BuyerDashboard from "./pages/BuyerDashboard";
 import SellerDashboard from "./pages/SellerDashboard";
 import HowItWorks from "./pages/HowItWorks";
 import Payment from "./pages/Payment";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          {/* Protected Routes */}
           <Route
             path="/payment/:paymentId"
             element={
@@ -44,7 +46,14 @@ function App() {
               </ProtectedRoute>
             }
           />
-          {/* Protected Routes */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/auctions"
             element={
