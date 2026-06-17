@@ -153,7 +153,7 @@ export default function SellItem() {
     );
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors duration-300">
+    <div className="min-h-screen bg-orange-50 dark:bg-gray-950 transition-colors duration-300">
       <div className="max-w-2xl mx-auto px-6 py-10">
         <div className="mb-8 ml-2">
           <h1 className="text-2xl font-black text-gray-900 dark:text-white">

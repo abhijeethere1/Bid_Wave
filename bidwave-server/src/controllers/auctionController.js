@@ -27,26 +27,26 @@ export const getAuction = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Try Redis cache first (fastest)
     const cached = await redis.get(`auction:${id}`);
-    if (cached) return res.json(cached);
+    if (cached) {
+      console.log("✅ Served from REDIS CACHE");
+      return res.json(cached);
+    }
+
+    console.log("⚠️ Cache miss — fetching from SUPABASE");
 
     const { data, error } = await supabase
       .from("auctions")
       .select(
-        `
-        *,
-        seller:users(id, name),
-        bids(id, amount, created_at, bidder:users(name))
-      `,
+        `*, seller:users(id, name), bids(id, amount, created_at, bidder:users(name))`,
       )
       .eq("id", id)
       .single();
 
     if (error) throw error;
 
-    // Cache in Redis for 30 seconds
     await redis.set(`auction:${id}`, data, { ex: 30 });
+    console.log("✅ Cached in REDIS for 30s");
 
     res.json(data);
   } catch (err) {

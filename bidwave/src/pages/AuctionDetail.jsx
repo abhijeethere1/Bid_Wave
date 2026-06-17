@@ -80,11 +80,33 @@ export default function AuctionDetail() {
     }
   };
 
+  // ← Add handleBidReversed here
+  const handleBidReversed = (data) => {
+    toast.error(data.message);
+    // Refetch auction to get accurate bid list after rollback
+    api.get(`/auctions/${id}`).then((res) => {
+      setAuction(res.data);
+      if (res.data.bids) {
+        const formatted = res.data.bids
+          .sort((a, b) => b.amount - a.amount)
+          .map((bid) => ({
+            id: bid.id,
+            user: bid.bidder?.name || "Anonymous",
+            amount: bid.amount,
+            time: new Date(bid.created_at).toLocaleTimeString(),
+          }));
+        setBids(formatted);
+      }
+    });
+  };
+
+  // useSocket call comes after all handlers are defined
   const { placeBid } = useSocket(
     String(id),
     handleNewBid,
     handleBidError,
     handleAuctionEnded,
+    handleBidReversed,
   );
 
   const handleBid = (amount) => {

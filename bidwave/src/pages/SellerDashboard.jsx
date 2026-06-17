@@ -79,7 +79,7 @@ export default function SellerDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors duration-300">
+    <div className="min-h-screen bg-orange-50 dark:bg-gray-950 transition-colors duration-300">
       <div className="max-w-3xl mx-auto px-6 py-10">
         <DashboardHeader
           title="Seller Dashboard"

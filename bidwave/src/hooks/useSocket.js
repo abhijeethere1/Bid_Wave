@@ -3,33 +3,29 @@ import { io } from "socket.io-client";
 
 const SOCKET_URL = "http://localhost:5000";
 
-export function useSocket(auctionId, onNewBid, onBidError, onAuctionEnded) {
+export function useSocket(
+  auctionId,
+  onNewBid,
+  onBidError,
+  onAuctionEnded,
+  onBidReversed,
+) {
   const socketRef = useRef(null);
 
   useEffect(() => {
     socketRef.current = io(SOCKET_URL);
 
-    socketRef.current.on("connect", () => {
-      console.log("✅ Socket connected:", socketRef.current.id);
-    });
-
-    socketRef.current.on("connect_error", (err) => {
-      console.log("❌ Socket error:", err.message);
-    });
-
     socketRef.current.emit("join_auction", auctionId);
 
-    socketRef.current.on("new_bid", (data) => {
-      onNewBid(data);
-    });
-
-    socketRef.current.on("bid_error", (data) => {
-      onBidError(data.message);
-    });
-
-    // Listen for auction end
+    socketRef.current.on("new_bid", (data) => onNewBid(data));
+    socketRef.current.on("bid_error", (data) => onBidError(data.message));
     socketRef.current.on("auction_ended", (data) => {
       if (onAuctionEnded) onAuctionEnded(data);
+    });
+
+    // Listen for bid reversal
+    socketRef.current.on("bid_reversed", (data) => {
+      if (onBidReversed) onBidReversed(data);
     });
 
     return () => {

@@ -13,6 +13,19 @@ export const setupSocket = (io) => {
 
     socket.on("place_bid", async ({ auctionId, amount, userId, userName }) => {
       try {
+        // Check if user is blocked
+        const { data: bidderUser } = await supabase
+          .from("users")
+          .select("is_blocked")
+          .eq("id", userId)
+          .single();
+
+        if (bidderUser?.is_blocked) {
+          socket.emit("bid_error", {
+            message: "Your account has been blocked. You cannot place bids.",
+          });
+          return;
+        }
         console.log("✅ Bid received:", { auctionId, amount, userName });
 
         const { data: auction } = await supabase

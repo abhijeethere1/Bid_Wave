@@ -47,9 +47,20 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
+  const updateUser = (updatedFields) => {
+    setUser((prev) => ({ ...prev, ...updatedFields }));
+  };
   return (
     <AuthContext.Provider
-      value={{ user, loading, register, login, logout, googleLogin }}
+      value={{
+        user,
+        loading,
+        register,
+        login,
+        logout,
+        googleLogin,
+        updateUser,
+      }}
     >
       {children}
     </AuthContext.Provider>

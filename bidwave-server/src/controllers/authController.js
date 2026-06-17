@@ -4,7 +4,6 @@ import supabase from "../config/db.js";
 import { OAuth2Client } from "google-auth-library";
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-
 export const googleAuth = async (req, res) => {
   const { accessToken, role = "buyer" } = req.body;
 
@@ -15,7 +14,7 @@ export const googleAuth = async (req, res) => {
         headers: { Authorization: `Bearer ${accessToken}` },
       },
     );
-    const { name, email } = await googleRes.json();
+    const { name, email, picture } = await googleRes.json();
 
     if (!email) {
       return res
@@ -23,14 +22,12 @@ export const googleAuth = async (req, res) => {
         .json({ message: "Could not get user info from Google" });
     }
 
-    // Check if user already exists
     let { data: user } = await supabase
       .from("users")
       .select("*")
       .eq("email", email)
       .single();
 
-    // Create new user with selected role if doesn't exist
     if (!user) {
       const { data: newUser, error } = await supabase
         .from("users")
@@ -39,7 +36,8 @@ export const googleAuth = async (req, res) => {
             name,
             email,
             password: "GOOGLE_AUTH",
-            role, // ← uses selected role
+            role,
+            avatar_url: picture, // ← saves Google profile pic
           },
         ])
         .select()
@@ -57,6 +55,7 @@ export const googleAuth = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        avatar_url: user.avatar_url,
       },
     });
   } catch (err) {
@@ -124,7 +123,6 @@ export const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Find user
     const { data: user, error } = await supabase
       .from("users")
       .select("*")
@@ -135,7 +133,16 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
-    // Check password
+    // Check if user is blocked
+    if (user.is_blocked) {
+      return res
+        .status(403)
+        .json({
+          message:
+            "Your account has been blocked due to suspicious activity. Contact support.",
+        });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid email or password" });
@@ -160,9 +167,34 @@ export const login = async (req, res) => {
 export const getMe = async (req, res) => {
   const { data: user } = await supabase
     .from("users")
-    .select("id, name, email, phone, role")
+    .select("id, name, email, phone, role, avatar_url")
     .eq("id", req.user.id)
     .single();
 
   res.json(user);
+};
+
+export const updateProfile = async (req, res) => {
+  const { name, phone, avatar_url } = req.body;
+  const userId = req.user.id;
+
+  try {
+    const updates = {};
+    if (name !== undefined) updates.name = name;
+    if (phone !== undefined) updates.phone = phone;
+    if (avatar_url !== undefined) updates.avatar_url = avatar_url;
+
+    const { data: user, error } = await supabase
+      .from("users")
+      .update(updates)
+      .eq("id", userId)
+      .select("id, name, email, phone, role, avatar_url")
+      .single();
+
+    if (error) throw error;
+
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };

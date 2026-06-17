@@ -7,7 +7,8 @@ import { protect } from "../middleware/auth.js";
 
 const router = express.Router();
 
-router.get("/flagged", protect, getFlaggedAuctions);
-router.patch("/flagged/:id", protect, updateFlagStatus);
-
-export default router;
+export default (io) => {
+  router.get("/flagged", protect, getFlaggedAuctions);
+  router.patch("/flagged/:id", protect, updateFlagStatus(io));
+  return router;
+};
