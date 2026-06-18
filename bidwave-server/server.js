@@ -22,17 +22,17 @@ dotenv.config();
 const app = express();
 const httpServer = createServer(app);
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://bidwave-gray.vercel.app", // update after step 3
+];
+
 const io = new Server(httpServer, {
   cors: {
     origin: allowedOrigins,
     methods: ["GET", "POST"],
   },
 });
-
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://bidwave-gray.vercel.app", // update after step 3
-];
 
 app.use(
   cors({
