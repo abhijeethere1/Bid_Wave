@@ -143,7 +143,7 @@ BidWave is a scam-free, escrow-based live auction platform. Unlike peer-to-peer 
 │   (Supabase)       │ │       (Upstash)          │
 │ Users, Auctions, Bids,│ │ Cached auction data & │
 │ Payments, Shipments,  │ │ current bid prices    │
-│ Flagged Auctions       │ │                      │
+│ Flagged Auctions   │ │                          │
 └────────────────────┘ └──────────────────────────┘
 ```
 
@@ -379,8 +379,6 @@ Bid_Wave/
 ---
 
 ## 🎯 Key Engineering Highlights
-
-> Talking points for interviews
 
 - **Real-time architecture** — Socket.io rooms scoped per auction ID ensure bid broadcasts only reach relevant viewers, not the entire user base
 - **Cache-aside pattern** — Redis caches auction reads for 30 seconds and stores live bid prices separately for instant access during high-frequency bidding
