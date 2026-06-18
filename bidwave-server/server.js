@@ -24,12 +24,27 @@ const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
   },
 });
 
-app.use(cors({ origin: "http://localhost:5173" }));
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://your-frontend-url.vercel.app", // update after step 3
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+  }),
+);
 app.use(express.json({ limit: "10mb" }));
 
 app.get("/", (req, res) => {
