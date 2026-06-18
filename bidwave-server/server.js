@@ -31,7 +31,7 @@ const io = new Server(httpServer, {
 
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://your-frontend-url.vercel.app", // update after step 3
+  "https://bidwave-gray.vercel.app", // update after step 3
 ];
 
 app.use(
