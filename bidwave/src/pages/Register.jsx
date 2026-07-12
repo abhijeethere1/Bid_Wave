@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff, User, Phone } from "lucide-react";
+import { useGoogleLogin } from "@react-oauth/google";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
-import { GoogleLogin } from "@react-oauth/google";
-import { useGoogleLogin } from "@react-oauth/google";
 
-function Register() {
+export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState("buyer");
   const [form, setForm] = useState({
@@ -16,22 +15,8 @@ function Register() {
     password: "",
   });
   const [loading, setLoading] = useState(false);
-  const { register } = useAuth();
-  const { googleLogin } = useAuth();
+  const { register, googleLogin } = useAuth();
   const navigate = useNavigate();
-
-  const handleGoogleLogin = useGoogleLogin({
-    onSuccess: async (response) => {
-      try {
-        await googleLogin(response.access_token, role); // ← pass role
-        toast.success("Welcome to BidWave!");
-        navigate("/");
-      } catch {
-        toast.error("Google login failed");
-      }
-    },
-    onError: () => toast.error("Google login failed"),
-  });
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -48,6 +33,19 @@ function Register() {
     }
     setLoading(false);
   };
+
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (response) => {
+      try {
+        await googleLogin(response.access_token, role);
+        toast.success("Welcome to BidWave!");
+        navigate("/");
+      } catch {
+        toast.error("Google login failed");
+      }
+    },
+    onError: () => toast.error("Google login failed"),
+  });
 
   const fields = [
     {
@@ -73,27 +71,32 @@ function Register() {
     },
   ];
 
-  return (
-    <div className="min-h-[calc(100vh-65px)] flex items-center justify-center px-4 py-12 bg-orange-50 dark:bg-gray-950">
-      <div className="w-full max-w-md">
-        <div className="bg-white dark:bg-gray-900 border border-orange-100 dark:border-gray-800 rounded-3xl p-8 shadow-sm">
-          <div className="mb-8">
-            <h1 className="text-2xl font-black text-gray-900 dark:text-white">
-              Create account
-            </h1>
-            <p className="text-gray-400 text-sm mt-1">
-              Already have an account?{" "}
-              <Link
-                to="/login"
-                className="text-orange-500 hover:text-orange-600 font-semibold"
-              >
-                Sign in
-              </Link>
-            </p>
-          </div>
+  const inputClass =
+    "w-full pl-10 pr-4 py-3 text-sm rounded-xl border border-[#1A1A1A]/10 dark:border-[#E0E0E0]/10 bg-[#FAF9F6] dark:bg-[#121212] text-[#1A1A1A] dark:text-[#E0E0E0] placeholder-[#737373] dark:placeholder-[#A0A0A0] focus:outline-none focus:ring-2 focus:ring-[#4B0082]/30 dark:focus:ring-[#9D4EDD]/30 focus:border-[#4B0082] dark:focus:border-[#9D4EDD] transition-all";
 
+  return (
+    <div className="min-h-[calc(100vh-65px)] flex items-center justify-center px-4 py-12 bg-[#FAF9F6] dark:bg-[#121212]">
+      <div className="w-full max-w-md">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="font-display text-3xl font-black text-[#1A1A1A] dark:text-[#E0E0E0]">
+            Create account
+          </h1>
+          <p className="text-[#737373] dark:text-[#A0A0A0] text-sm mt-2">
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="text-[#4B0082] dark:text-[#9D4EDD] font-semibold hover:underline"
+            >
+              Sign in
+            </Link>
+          </p>
+        </div>
+
+        {/* Card */}
+        <div className="bg-white dark:bg-[#1E1E1E] border border-[#4B0082]/10 dark:border-[#9D4EDD]/15 rounded-3xl p-8 shadow-[0_4px_24px_rgba(75,0,130,0.06)] dark:shadow-[0_4px_24px_rgba(157,78,221,0.06)]">
           {/* Role Toggle */}
-          <div className="flex bg-gray-100 dark:bg-gray-800 rounded-xl p-1 mb-6">
+          <div className="flex bg-[#FAF9F6] dark:bg-[#121212] border border-[#1A1A1A]/8 dark:border-[#E0E0E0]/8 rounded-xl p-1 mb-6">
             {["buyer", "seller"].map((r) => (
               <button
                 key={r}
@@ -102,8 +105,8 @@ function Register() {
                 className={`flex-1 py-2.5 rounded-lg text-sm font-semibold capitalize transition-all duration-200
                   ${
                     role === r
-                      ? "bg-white dark:bg-gray-700 text-orange-500 shadow-sm"
-                      : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                      ? "bg-[#4B0082] dark:bg-[#9D4EDD] text-white shadow-sm"
+                      : "text-[#737373] dark:text-[#A0A0A0] hover:text-[#1A1A1A] dark:hover:text-[#E0E0E0]"
                   }`}
               >
                 I'm a {r}
@@ -114,11 +117,11 @@ function Register() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {fields.map((field) => (
               <div key={field.name} className="space-y-1.5">
-                <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+                <label className="text-xs font-semibold text-[#737373] dark:text-[#A0A0A0] uppercase tracking-widest">
                   {field.label}
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#737373] dark:text-[#A0A0A0]">
                     {field.icon}
                   </span>
                   <input
@@ -128,20 +131,21 @@ function Register() {
                     onChange={handleChange}
                     placeholder={field.placeholder}
                     required
-                    className="w-full pl-10 pr-4 py-3 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition-all"
+                    className={inputClass}
                   />
                 </div>
               </div>
             ))}
 
+            {/* Password */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+              <label className="text-xs font-semibold text-[#737373] dark:text-[#A0A0A0] uppercase tracking-widest">
                 Password
               </label>
               <div className="relative">
                 <Lock
                   size={15}
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#737373] dark:text-[#A0A0A0]"
                 />
                 <input
                   type={showPassword ? "text" : "password"}
@@ -150,22 +154,23 @@ function Register() {
                   onChange={handleChange}
                   placeholder="Min. 8 characters"
                   required
-                  className="w-full pl-10 pr-11 py-3 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition-all"
+                  className={inputClass.replace("pr-4", "pr-11")}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#737373] dark:text-[#A0A0A0] hover:text-[#4B0082] dark:hover:text-[#9D4EDD] transition-colors"
                 >
                   {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
               </div>
             </div>
 
+            {/* Submit */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 mt-2 rounded-xl bg-orange-500 hover:bg-orange-600 disabled:opacity-60 text-white font-semibold text-sm shadow-lg shadow-orange-500/20 transition-all duration-200"
+              className="w-full py-3 mt-2 rounded-xl bg-[#4B0082] dark:bg-[#9D4EDD] hover:brightness-110 disabled:opacity-60 text-white font-semibold text-sm shadow-[0_4px_24px_rgba(75,0,130,0.25)] dark:shadow-[0_4px_24px_rgba(157,78,221,0.25)] transition-all duration-200"
             >
               {loading
                 ? "Creating account..."
@@ -173,16 +178,20 @@ function Register() {
             </button>
           </form>
 
+          {/* Divider */}
           <div className="flex items-center gap-3 my-6">
-            <div className="flex-1 h-px bg-gray-100 dark:bg-gray-800" />
-            <span className="text-xs text-gray-400">or</span>
-            <div className="flex-1 h-px bg-gray-100 dark:bg-gray-800" />
+            <div className="flex-1 h-px bg-[#1A1A1A]/8 dark:bg-[#E0E0E0]/8" />
+            <span className="text-xs text-[#737373] dark:text-[#A0A0A0]">
+              or
+            </span>
+            <div className="flex-1 h-px bg-[#1A1A1A]/8 dark:bg-[#E0E0E0]/8" />
           </div>
 
+          {/* Google */}
           <button
             type="button"
             onClick={() => handleGoogleLogin()}
-            className="w-full py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm font-medium flex items-center justify-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200"
+            className="w-full py-3 rounded-xl border border-[#1A1A1A]/10 dark:border-[#E0E0E0]/10 bg-[#FAF9F6] dark:bg-[#121212] text-[#1A1A1A] dark:text-[#E0E0E0] text-sm font-medium flex items-center justify-center gap-3 hover:border-[#4B0082]/30 dark:hover:border-[#9D4EDD]/30 hover:bg-[#4B0082]/5 dark:hover:bg-[#9D4EDD]/5 transition-all duration-200"
           >
             <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
               <path
@@ -205,9 +214,24 @@ function Register() {
             Continue with Google
           </button>
         </div>
+
+        <p className="text-center text-xs text-[#737373] dark:text-[#A0A0A0] mt-6">
+          By signing up you agree to our{" "}
+          <Link
+            to="/"
+            className="text-[#4B0082] dark:text-[#9D4EDD] hover:underline"
+          >
+            Terms
+          </Link>{" "}
+          and{" "}
+          <Link
+            to="/"
+            className="text-[#4B0082] dark:text-[#9D4EDD] hover:underline"
+          >
+            Privacy Policy
+          </Link>
+        </p>
       </div>
     </div>
   );
 }
-
-export default Register;

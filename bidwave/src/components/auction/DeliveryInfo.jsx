@@ -6,34 +6,39 @@ export default function DeliveryInfo({ size, deliveryCharge, currentBid }) {
       {/* Delivery Row */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Truck size={14} className="text-gray-400" />
+          <Truck size={14} className="text-[#737373] dark:text-[#A0A0A0]" />
           <div>
-            <p className="text-xs font-medium text-gray-900 dark:text-white">
+            <p className="text-xs font-medium text-[#1A1A1A] dark:text-[#E0E0E0]">
               {size} item
             </p>
-            <p className="text-[11px] text-gray-400">Delivery fee</p>
+            <p className="text-[11px] text-[#737373] dark:text-[#A0A0A0]">
+              Delivery fee
+            </p>
           </div>
         </div>
-        <p className="text-sm font-bold text-gray-900 dark:text-white">
-          ₹{deliveryCharge.toLocaleString("en-IN")}
+        <p className="text-sm font-bold text-[#1A1A1A] dark:text-[#E0E0E0]">
+          ₹{deliveryCharge?.toLocaleString("en-IN")}
         </p>
       </div>
 
       {/* Total */}
-      <div className="flex items-center justify-between bg-orange-50 dark:bg-orange-500/10 rounded-xl px-4 py-3">
-        <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+      <div className="flex items-center justify-between bg-[#D4AF37]/8 dark:bg-[#FFD700]/10 border border-[#D4AF37]/15 dark:border-[#FFD700]/15 rounded-xl px-4 py-3">
+        <p className="text-xs font-semibold text-[#737373] dark:text-[#A0A0A0]">
           Total if you win
         </p>
-        <p className="text-sm font-black text-orange-500">
+        <p className="text-sm font-black text-[#D4AF37] dark:text-[#FFD700]">
           ₹{(currentBid + deliveryCharge).toLocaleString("en-IN")}
         </p>
       </div>
 
       {/* Guarantee */}
       <div className="flex items-start gap-2.5">
-        <Shield size={14} className="text-green-500 shrink-0 mt-0.5" />
-        <p className="text-xs text-gray-400 leading-relaxed">
-          <span className="text-gray-900 dark:text-white font-semibold">
+        <Shield
+          size={14}
+          className="text-[#2E8B57] dark:text-[#4EBA75] shrink-0 mt-0.5"
+        />
+        <p className="text-xs text-[#737373] dark:text-[#A0A0A0] leading-relaxed">
+          <span className="text-[#1A1A1A] dark:text-[#E0E0E0] font-semibold">
             BidWave Guarantee —{" "}
           </span>
           Item verified at our center before dispatch. Payment held in escrow

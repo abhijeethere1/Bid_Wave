@@ -26,24 +26,22 @@ export default function AuctionDetail() {
 
   const { ended } = useCountdown(auction?.ends_at);
 
-  // Fetch auction from backend
   useEffect(() => {
     const fetchAuction = async () => {
       try {
         const res = await api.get(`/auctions/${id}`);
         setAuction(res.data);
-
-        // Format bids from DB
-        if (res.data.bids && res.data.bids.length > 0) {
-          const formatted = res.data.bids
-            .sort((a, b) => b.amount - a.amount)
-            .map((bid) => ({
-              id: bid.id,
-              user: bid.bidder?.name || "Anonymous",
-              amount: bid.amount,
-              time: new Date(bid.created_at).toLocaleTimeString(),
-            }));
-          setBids(formatted);
+        if (res.data.bids?.length > 0) {
+          setBids(
+            res.data.bids
+              .sort((a, b) => b.amount - a.amount)
+              .map((bid) => ({
+                id: bid.id,
+                user: bid.bidder?.name || "Anonymous",
+                amount: bid.amount,
+                time: new Date(bid.created_at).toLocaleTimeString(),
+              })),
+          );
         }
       } catch (err) {
         console.error("Failed to fetch auction:", err);
@@ -66,9 +64,7 @@ export default function AuctionDetail() {
     toast.success(`New bid: ₹${data.amount.toLocaleString("en-IN")}`);
   };
 
-  const handleBidError = (message) => {
-    toast.error(message);
-  };
+  const handleBidError = (message) => toast.error(message);
 
   const handleAuctionEnded = (data) => {
     setAuctionEnded(true);
@@ -80,27 +76,25 @@ export default function AuctionDetail() {
     }
   };
 
-  // ← Add handleBidReversed here
   const handleBidReversed = (data) => {
     toast.error(data.message);
-    // Refetch auction to get accurate bid list after rollback
     api.get(`/auctions/${id}`).then((res) => {
       setAuction(res.data);
       if (res.data.bids) {
-        const formatted = res.data.bids
-          .sort((a, b) => b.amount - a.amount)
-          .map((bid) => ({
-            id: bid.id,
-            user: bid.bidder?.name || "Anonymous",
-            amount: bid.amount,
-            time: new Date(bid.created_at).toLocaleTimeString(),
-          }));
-        setBids(formatted);
+        setBids(
+          res.data.bids
+            .sort((a, b) => b.amount - a.amount)
+            .map((bid) => ({
+              id: bid.id,
+              user: bid.bidder?.name || "Anonymous",
+              amount: bid.amount,
+              time: new Date(bid.created_at).toLocaleTimeString(),
+            })),
+        );
       }
     });
   };
 
-  // useSocket call comes after all handlers are defined
   const { placeBid } = useSocket(
     String(id),
     handleNewBid,
@@ -117,29 +111,29 @@ export default function AuctionDetail() {
     placeBid(amount, user.id, user.name);
   };
 
-  // Loading state
   if (loading)
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-[#FAF9F6] dark:bg-[#121212]">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-gray-400">Loading auction...</p>
+          <div className="w-8 h-8 border-2 border-[#4B0082] dark:border-[#9D4EDD] border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-[#737373] dark:text-[#A0A0A0]">
+            Loading auction...
+          </p>
         </div>
       </div>
     );
 
-  // Not found
   if (!auction)
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-[#FAF9F6] dark:bg-[#121212]">
         <div className="text-center">
           <p className="text-4xl mb-4">🔍</p>
-          <p className="text-sm font-bold text-gray-900 dark:text-white">
+          <p className="text-sm font-bold text-[#1A1A1A] dark:text-[#E0E0E0]">
             Auction not found
           </p>
           <Link
             to="/auctions"
-            className="text-orange-500 text-sm mt-2 block hover:underline"
+            className="text-[#4B0082] dark:text-[#9D4EDD] text-sm mt-2 block hover:underline"
           >
             Back to Auctions
           </Link>
@@ -148,11 +142,11 @@ export default function AuctionDetail() {
     );
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors duration-300">
+    <div className="min-h-screen bg-[#FAF9F6] dark:bg-[#121212] transition-colors duration-300">
       <div className="max-w-5xl mx-auto px-6 py-8">
         <Link
           to="/auctions"
-          className="inline-flex items-center gap-1 text-sm text-gray-400 hover:text-orange-500 transition-colors mb-8"
+          className="inline-flex items-center gap-1 text-sm text-[#737373] dark:text-[#A0A0A0] hover:text-[#4B0082] dark:hover:text-[#9D4EDD] transition-colors mb-8"
         >
           <ChevronLeft size={15} /> Back to Auctions
         </Link>
@@ -162,29 +156,29 @@ export default function AuctionDetail() {
           <div
             className={`mb-6 rounded-2xl p-5 border ${
               winner?.winnerId
-                ? "bg-green-50 dark:bg-green-500/10 border-green-100 dark:border-green-500/20"
-                : "bg-gray-50 dark:bg-gray-900 border-gray-100 dark:border-gray-800"
+                ? "bg-[#D4AF37]/8 dark:bg-[#FFD700]/10 border-[#D4AF37]/20 dark:border-[#FFD700]/20"
+                : "bg-[#FAF9F6] dark:bg-[#1E1E1E] border-[#1A1A1A]/8 dark:border-[#E0E0E0]/8"
             }`}
           >
             <div className="flex items-center gap-3">
               <div
                 className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${
                   winner?.winnerId
-                    ? "bg-green-100 dark:bg-green-500/20"
-                    : "bg-gray-100 dark:bg-gray-800"
+                    ? "bg-[#D4AF37]/15 dark:bg-[#FFD700]/10"
+                    : "bg-[#FAF9F6] dark:bg-[#121212]"
                 }`}
               >
                 {winner?.winnerId ? "🏆" : "⏱"}
               </div>
               <div>
-                <p className="text-sm font-bold text-gray-900 dark:text-white">
+                <p className="text-sm font-bold text-[#1A1A1A] dark:text-[#E0E0E0]">
                   {winner?.winnerId
                     ? "Auction Ended — We have a winner!"
                     : "Auction Ended — No bids placed"}
                 </p>
                 {winner?.winnerId && (
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                    <span className="font-semibold text-green-600 dark:text-green-400">
+                  <p className="text-xs text-[#737373] dark:text-[#A0A0A0] mt-0.5">
+                    <span className="font-semibold text-[#D4AF37] dark:text-[#FFD700]">
                       {winner.winnerName}
                     </span>{" "}
                     won with ₹{winner.winningBid?.toLocaleString("en-IN")}
@@ -193,7 +187,7 @@ export default function AuctionDetail() {
               </div>
             </div>
             {winner?.totalAmount && (
-              <div className="mt-4 pt-4 border-t border-green-100 dark:border-green-500/20 grid grid-cols-3 gap-4 text-center">
+              <div className="mt-4 pt-4 border-t border-[#D4AF37]/15 dark:border-[#FFD700]/15 grid grid-cols-3 gap-4 text-center">
                 {[
                   {
                     label: "Winning Bid",
@@ -206,9 +200,11 @@ export default function AuctionDetail() {
                   },
                 ].map((item) => (
                   <div key={item.label}>
-                    <p className="text-xs text-gray-400">{item.label}</p>
+                    <p className="text-xs text-[#737373] dark:text-[#A0A0A0]">
+                      {item.label}
+                    </p>
                     <p
-                      className={`text-sm font-bold mt-0.5 ${item.label === "Total Payable" ? "text-orange-500" : "text-gray-900 dark:text-white"}`}
+                      className={`text-sm font-bold mt-0.5 ${item.label === "Total Payable" ? "text-[#D4AF37] dark:text-[#FFD700]" : "text-[#1A1A1A] dark:text-[#E0E0E0]"}`}
                     >
                       {item.value}
                     </p>
@@ -227,14 +223,14 @@ export default function AuctionDetail() {
               title={auction.title}
             />
             <div>
-              <p className="text-sm font-semibold text-gray-900 dark:text-white mb-2">
+              <p className="text-sm font-semibold text-[#1A1A1A] dark:text-[#E0E0E0] mb-2">
                 Description
               </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+              <p className="text-sm text-[#737373] dark:text-[#A0A0A0] leading-relaxed">
                 {auction.description}
               </p>
             </div>
-            <div className="border-t border-gray-100 dark:border-gray-800 pt-6">
+            <div className="border-t border-[#4B0082]/8 dark:border-[#9D4EDD]/10 pt-6">
               <BidHistory bids={bids} />
             </div>
           </div>
@@ -246,7 +242,7 @@ export default function AuctionDetail() {
               category={auction.category}
               seller={auction.seller?.name || "Unknown"}
             />
-            <div className="border-t border-gray-100 dark:border-gray-800" />
+            <div className="border-t border-[#4B0082]/8 dark:border-[#9D4EDD]/10" />
             <BidSection
               currentBid={bids[0]?.amount || auction.current_price}
               startingBid={auction.starting_price}
@@ -254,9 +250,9 @@ export default function AuctionDetail() {
               onBid={handleBid}
               ended={ended || auctionEnded}
             />
-            <div className="border-t border-gray-100 dark:border-gray-800" />
+            <div className="border-t border-[#4B0082]/8 dark:border-[#9D4EDD]/10" />
             <AuctionTimer endsAt={auction.ends_at} />
-            <div className="border-t border-gray-100 dark:border-gray-800" />
+            <div className="border-t border-[#4B0082]/8 dark:border-[#9D4EDD]/10" />
             <DeliveryInfo
               size={auction.size}
               deliveryCharge={auction.delivery_charge}

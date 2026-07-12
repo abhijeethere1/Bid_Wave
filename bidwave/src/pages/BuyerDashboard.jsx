@@ -21,10 +21,12 @@ export default function BuyerDashboard() {
 
   if (loading)
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-[#FAF9F6] dark:bg-[#121212]">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-gray-400">Loading dashboard...</p>
+          <div className="w-8 h-8 border-2 border-[#4B0082] dark:border-[#9D4EDD] border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-[#737373] dark:text-[#A0A0A0]">
+            Loading dashboard...
+          </p>
         </div>
       </div>
     );
@@ -52,7 +54,6 @@ export default function BuyerDashboard() {
     },
   ];
 
-  // Map payment status to order card status
   const mapStatus = (payment) => {
     if (payment.status === "pending") return "payment_pending";
     if (payment.status === "paid") return "awaiting_item";
@@ -63,7 +64,7 @@ export default function BuyerDashboard() {
   const orders =
     data?.orders?.map((payment) => ({
       id: payment.id,
-      paymentId: payment.id, // ← add this
+      paymentId: payment.id,
       title: payment.auction?.title || "Auction Item",
       image:
         payment.auction?.images?.[0] ||
@@ -81,7 +82,7 @@ export default function BuyerDashboard() {
     })) || [];
 
   return (
-    <div className="min-h-screen bg-orange-50 dark:bg-gray-950 transition-colors duration-300">
+    <div className="min-h-screen bg-[#FAF9F6] dark:bg-[#121212] transition-colors duration-300">
       <div className="max-w-3xl mx-auto px-6 py-10">
         <DashboardHeader
           title="My Dashboard"
@@ -97,15 +98,15 @@ export default function BuyerDashboard() {
         {orders.length === 0 ? (
           <div className="text-center py-16 ml-2">
             <p className="text-3xl mb-3">🎯</p>
-            <p className="text-sm font-bold text-gray-900 dark:text-white">
+            <p className="text-sm font-bold text-[#1A1A1A] dark:text-[#E0E0E0]">
               No orders yet
             </p>
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-[#737373] dark:text-[#A0A0A0] mt-1">
               Win an auction to see your orders here
             </p>
             <Link
               to="/auctions"
-              className="inline-block mt-4 px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold rounded-xl transition-all"
+              className="inline-block mt-4 px-5 py-2.5 bg-[#4B0082] dark:bg-[#9D4EDD] hover:brightness-110 text-white text-sm font-semibold rounded-xl transition-all shadow-[0_4px_16px_rgba(75,0,130,0.25)]"
             >
               Browse Auctions
             </Link>

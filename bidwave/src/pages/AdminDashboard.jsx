@@ -1,45 +1,45 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Shield, AlertTriangle, CheckCircle, XCircle, Eye } from "lucide-react";
 import api from "../utils/api";
 import toast from "react-hot-toast";
-import { Link } from "react-router-dom";
+
 const RISK_COLOR = (score) => {
   if (score >= 100)
     return {
-      bg: "bg-red-50 dark:bg-red-500/10",
-      text: "text-red-600",
+      bg: "bg-[#B22222]/8 dark:bg-[#FF6666]/10",
+      text: "text-[#B22222] dark:text-[#FF6666]",
       label: "Critical",
     };
   if (score >= 70)
     return {
-      bg: "bg-orange-50 dark:bg-orange-500/10",
-      text: "text-orange-600",
+      bg: "bg-[#D4AF37]/8 dark:bg-[#FFD700]/10",
+      text: "text-[#8A6B18] dark:text-[#FFD700]",
       label: "High",
     };
   return {
-    bg: "bg-yellow-50 dark:bg-yellow-500/10",
-    text: "text-yellow-600",
+    bg: "bg-[#4B0082]/5 dark:bg-[#9D4EDD]/10",
+    text: "text-[#4B0082] dark:text-[#9D4EDD]",
     label: "Medium",
   };
 };
 
-const STATUS_MAP = {
-  pending: {
-    label: "Pending Review",
-    color: "text-yellow-600 bg-yellow-50 dark:bg-yellow-500/10",
-  },
-  reviewed: {
-    label: "Reviewed",
-    color: "text-blue-600 bg-blue-50 dark:bg-blue-500/10",
-  },
-  cleared: {
-    label: "Cleared",
-    color: "text-green-600 bg-green-50 dark:bg-green-500/10",
-  },
-  blocked: {
-    label: "Blocked",
-    color: "text-red-600 bg-red-50 dark:bg-red-500/10",
-  },
+const STATUS_STYLE = {
+  pending:
+    "text-[#8A6B18] dark:text-[#FFD700] bg-[#D4AF37]/10 dark:bg-[#FFD700]/10",
+  reviewed:
+    "text-[#4B0082] dark:text-[#9D4EDD] bg-[#4B0082]/8 dark:bg-[#9D4EDD]/10",
+  cleared:
+    "text-[#2E8B57] dark:text-[#4EBA75] bg-[#2E8B57]/8 dark:bg-[#4EBA75]/10",
+  blocked:
+    "text-[#B22222] dark:text-[#FF6666] bg-[#B22222]/8 dark:bg-[#FF6666]/10",
+};
+
+const STATUS_LABEL = {
+  pending: "Pending Review",
+  reviewed: "Reviewed",
+  cleared: "Cleared",
+  blocked: "Blocked",
 };
 
 export default function AdminDashboard() {
@@ -54,7 +54,7 @@ export default function AdminDashboard() {
     try {
       const res = await api.get("/admin/flagged");
       setFlags(res.data);
-    } catch (err) {
+    } catch {
       toast.error("Failed to load flagged auctions");
     }
     setLoading(false);
@@ -72,10 +72,12 @@ export default function AdminDashboard() {
 
   if (loading)
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-[#FAF9F6] dark:bg-[#121212]">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-gray-400">Loading admin dashboard...</p>
+          <div className="w-8 h-8 border-2 border-[#4B0082] dark:border-[#9D4EDD] border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-[#737373] dark:text-[#A0A0A0]">
+            Loading admin dashboard...
+          </p>
         </div>
       </div>
     );
@@ -85,18 +87,21 @@ export default function AdminDashboard() {
   const cleared = flags.filter((f) => f.status === "cleared").length;
 
   return (
-    <div className="min-h-screen bg-orange-50 dark:bg-gray-950 transition-colors duration-300">
+    <div className="min-h-screen bg-[#FAF9F6] dark:bg-[#121212] transition-colors duration-300">
       <div className="max-w-4xl mx-auto px-6 py-10">
         {/* Header */}
-        <div className="flex items-start justify-between pb-8 border-b border-gray-100 dark:border-gray-800 mb-8">
+        <div className="flex items-start justify-between pb-8 border-b border-[#4B0082]/8 dark:border-[#9D4EDD]/10 mb-8">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <Shield size={20} className="text-orange-500" />
-              <h1 className="text-2xl font-black text-gray-900 dark:text-white">
+              <Shield
+                size={20}
+                className="text-[#D4AF37] dark:text-[#FFD700]"
+              />
+              <h1 className="font-display text-2xl font-black text-[#1A1A1A] dark:text-[#E0E0E0]">
                 Admin Dashboard
               </h1>
             </div>
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-[#737373] dark:text-[#A0A0A0]">
               Fraud detection and auction monitoring
             </p>
           </div>
@@ -108,45 +113,48 @@ export default function AdminDashboard() {
             {
               label: "Pending Review",
               value: pending,
-              color: "text-yellow-500",
+              color: "text-[#8A6B18] dark:text-[#FFD700]",
               icon: <AlertTriangle size={16} />,
+              bg: "bg-[#D4AF37]/8 dark:bg-[#FFD700]/10",
             },
             {
               label: "Cleared",
               value: cleared,
-              color: "text-green-500",
+              color: "text-[#2E8B57] dark:text-[#4EBA75]",
               icon: <CheckCircle size={16} />,
+              bg: "bg-[#2E8B57]/8 dark:bg-[#4EBA75]/10",
             },
             {
               label: "Blocked",
               value: blocked,
-              color: "text-red-500",
+              color: "text-[#B22222] dark:text-[#FF6666]",
               icon: <XCircle size={16} />,
+              bg: "bg-[#B22222]/8 dark:bg-[#FF6666]/10",
             },
           ].map((stat) => (
             <div
               key={stat.label}
-              className="bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-5"
+              className="bg-white dark:bg-[#1E1E1E] border border-[#4B0082]/8 dark:border-[#9D4EDD]/15 rounded-2xl p-5 shadow-[0_2px_12px_rgba(75,0,130,0.04)]"
             >
               <div className={`flex items-center gap-2 mb-2 ${stat.color}`}>
                 {stat.icon}
-                <p className="text-xs font-semibold uppercase tracking-wide">
+                <p className="text-xs font-semibold uppercase tracking-widest">
                   {stat.label}
                 </p>
               </div>
-              <p className="text-3xl font-black text-gray-900 dark:text-white">
+              <p className="font-display text-3xl font-black text-[#1A1A1A] dark:text-[#E0E0E0]">
                 {stat.value}
               </p>
             </div>
           ))}
         </div>
 
-        {/* Flagged Auctions */}
+        {/* Section Header */}
         <div className="mt-8 mb-6 ml-2 flex items-center gap-3">
-          <h2 className="text-base font-bold text-gray-900 dark:text-white">
+          <h2 className="text-base font-bold text-[#1A1A1A] dark:text-[#E0E0E0]">
             Flagged Auctions
           </h2>
-          <span className="text-xs font-medium text-gray-400 bg-gray-100 dark:bg-gray-800 px-2.5 py-1 rounded-full">
+          <span className="text-xs font-medium text-[#737373] dark:text-[#A0A0A0] bg-[#4B0082]/8 dark:bg-[#9D4EDD]/10 px-2.5 py-1 rounded-full">
             {flags.length} total
           </span>
         </div>
@@ -154,25 +162,25 @@ export default function AdminDashboard() {
         {flags.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-3xl mb-3">✅</p>
-            <p className="text-sm font-bold text-gray-900 dark:text-white">
+            <p className="text-sm font-bold text-[#1A1A1A] dark:text-[#E0E0E0]">
               No flagged auctions
             </p>
-            <p className="text-xs text-gray-400 mt-1">All auctions are clean</p>
+            <p className="text-xs text-[#737373] dark:text-[#A0A0A0] mt-1">
+              All auctions are clean
+            </p>
           </div>
         ) : (
           <div className="ml-2 flex flex-col gap-4">
             {flags.map((flag) => {
               const risk = RISK_COLOR(flag.risk_score);
-              const status = STATUS_MAP[flag.status];
-
               return (
                 <div
                   key={flag.id}
-                  className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm"
+                  className="bg-white dark:bg-[#1E1E1E] border border-[#4B0082]/8 dark:border-[#9D4EDD]/15 rounded-2xl overflow-hidden shadow-[0_2px_12px_rgba(75,0,130,0.04)]"
                 >
                   {/* Risk Banner */}
                   <div
-                    className={`flex items-center justify-between px-5 py-3 ${risk.bg} border-b border-gray-100 dark:border-gray-800`}
+                    className={`flex items-center justify-between px-5 py-3 ${risk.bg} border-b border-[#4B0082]/8 dark:border-[#9D4EDD]/10`}
                   >
                     <div className="flex items-center gap-2">
                       <AlertTriangle size={14} className={risk.text} />
@@ -181,9 +189,9 @@ export default function AdminDashboard() {
                       </p>
                     </div>
                     <span
-                      className={`text-[11px] font-semibold px-2.5 py-1 rounded-full ${status.color}`}
+                      className={`text-[11px] font-semibold px-2.5 py-1 rounded-full ${STATUS_STYLE[flag.status]}`}
                     >
-                      {status.label}
+                      {STATUS_LABEL[flag.status]}
                     </span>
                   </div>
 
@@ -196,39 +204,41 @@ export default function AdminDashboard() {
                           "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100&fit=crop"
                         }
                         alt={flag.auction?.title}
-                        className="w-12 h-12 rounded-xl object-cover shrink-0 border border-gray-100 dark:border-gray-700"
+                        className="w-12 h-12 rounded-xl object-cover shrink-0 border border-[#4B0082]/8 dark:border-[#9D4EDD]/10"
                       />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-gray-900 dark:text-white truncate">
+                        <p className="text-sm font-bold text-[#1A1A1A] dark:text-[#E0E0E0] truncate">
                           {flag.auction?.title}
                         </p>
-                        <p className="text-xs text-gray-400 mt-0.5">
+                        <p className="text-xs text-[#737373] dark:text-[#A0A0A0] mt-0.5">
                           Flagged bidder:{" "}
-                          <span className="font-semibold text-gray-600 dark:text-gray-300">
+                          <span className="font-semibold text-[#4B0082] dark:text-[#9D4EDD]">
                             {flag.bidder?.name}
                           </span>{" "}
                           · {flag.bidder?.email}
                         </p>
                       </div>
                       <div className="text-right shrink-0">
-                        <p className="text-sm font-black text-orange-500">
+                        <p className="text-sm font-black text-[#D4AF37] dark:text-[#FFD700]">
                           ₹
                           {flag.auction?.current_price?.toLocaleString("en-IN")}
                         </p>
-                        <p className="text-[11px] text-gray-400">current bid</p>
+                        <p className="text-[11px] text-[#737373] dark:text-[#A0A0A0]">
+                          current bid
+                        </p>
                       </div>
                     </div>
 
                     {/* Reasons */}
-                    <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3 mb-4">
-                      <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
+                    <div className="bg-[#FAF9F6] dark:bg-[#121212] border border-[#1A1A1A]/5 dark:border-[#E0E0E0]/5 rounded-xl p-3 mb-4">
+                      <p className="text-xs font-bold text-[#737373] dark:text-[#A0A0A0] uppercase tracking-widest mb-2">
                         Detected Issues
                       </p>
                       <div className="space-y-1.5">
                         {flag.reasons?.map((reason, i) => (
                           <div key={i} className="flex items-start gap-2">
-                            <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 shrink-0" />
-                            <p className="text-xs text-gray-600 dark:text-gray-300">
+                            <div className="w-1.5 h-1.5 bg-[#B22222] dark:bg-[#FF6666] rounded-full mt-1.5 shrink-0" />
+                            <p className="text-xs text-[#737373] dark:text-[#A0A0A0]">
                               {reason}
                             </p>
                           </div>
@@ -241,13 +251,13 @@ export default function AdminDashboard() {
                       <div className="flex gap-2">
                         <button
                           onClick={() => updateStatus(flag.id, "cleared")}
-                          className="flex-1 flex items-center justify-center gap-1.5 py-2 border border-green-200 dark:border-green-500/30 text-green-600 dark:text-green-400 text-xs font-semibold rounded-xl hover:bg-green-50 dark:hover:bg-green-500/10 transition-all"
+                          className="flex-1 flex items-center justify-center gap-1.5 py-2 border border-[#2E8B57]/20 dark:border-[#4EBA75]/20 text-[#2E8B57] dark:text-[#4EBA75] text-xs font-semibold rounded-xl hover:bg-[#2E8B57]/5 dark:hover:bg-[#4EBA75]/10 transition-all"
                         >
                           <CheckCircle size={13} /> Clear — Not Fraud
                         </button>
                         <button
                           onClick={() => updateStatus(flag.id, "blocked")}
-                          className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold rounded-xl transition-all"
+                          className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-[#B22222] dark:bg-[#FF6666] hover:brightness-110 text-white text-xs font-semibold rounded-xl transition-all"
                         >
                           <XCircle size={13} /> Block Bidder
                         </button>
@@ -255,7 +265,7 @@ export default function AdminDashboard() {
                           to={`/auctions/${flag.auction_id}`}
                           target="_blank"
                           rel="noreferrer"
-                          className="px-4 py-2 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 text-xs font-semibold rounded-xl hover:border-orange-400 hover:text-orange-500 transition-all flex items-center gap-1.5"
+                          className="px-4 py-2 border border-[#4B0082]/15 dark:border-[#9D4EDD]/20 text-[#4B0082] dark:text-[#9D4EDD] text-xs font-semibold rounded-xl hover:border-[#D4AF37]/40 hover:text-[#D4AF37] dark:hover:text-[#FFD700] transition-all flex items-center gap-1.5"
                         >
                           <Eye size={13} /> View
                         </Link>

@@ -14,25 +14,21 @@ import { useState } from "react";
 
 const getNavLinks = (user) => {
   const links = [{ label: "How it Works", to: "/how-it-works" }];
-
   if (user?.role === "buyer") {
     links.unshift({ label: "Live Auctions", to: "/auctions" });
   }
-
   if (user?.role === "seller") {
     links.unshift({ label: "Sell Item", to: "/sell" });
     links.unshift({ label: "Live Auctions", to: "/auctions" });
   }
-
   if (user?.role === "admin") {
     links.unshift({ label: "Admin Panel", to: "/admin" });
     links.unshift({ label: "Auctions", to: "/auctions" });
   }
-
   return links;
 };
 
-function Navbar() {
+export default function Navbar() {
   const { isDark, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
   const location = useLocation();
@@ -41,25 +37,26 @@ function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 transition-colors duration-300">
-      <div className="absolute inset-0 bg-white/70 dark:bg-gray-950/70 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-800/50" />
+      {/* Glass background */}
+      <div className="absolute inset-0 bg-[#FAF9F6]/80 dark:bg-[#121212]/80 backdrop-blur-xl border-b border-[#4B0082]/10 dark:border-[#9D4EDD]/10" />
 
-      <div className="relative max-w-5xl mx-auto px-6 py-3.5 flex items-center justify-between">
-        {/* Logo */}
+      <div className="relative max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+        {/* ── Logo ── */}
         <Link to="/" className="flex items-center gap-2.5 group">
           <div className="relative">
-            <div className="absolute inset-0 bg-orange-500 rounded-xl blur-md opacity-40 group-hover:opacity-70 transition-opacity" />
-            <div className="relative bg-gradient-to-br from-orange-400 to-orange-600 text-white w-9 h-9 rounded-xl flex items-center justify-center shadow-lg">
+            <div className="absolute inset-0 bg-[#D4AF37] rounded-xl blur-md opacity-30 group-hover:opacity-60 transition-opacity" />
+            <div className="relative bg-[#4B0082] dark:bg-[#9D4EDD] text-[#D4AF37] w-9 h-9 rounded-xl flex items-center justify-center shadow-lg">
               <Gavel size={17} strokeWidth={2.5} />
             </div>
           </div>
-          <span className="text-xl font-black tracking-tight">
-            <span className="text-orange-500">Bid</span>
-            <span className="text-gray-900 dark:text-white">Wave</span>
+          <span className="text-xl font-black tracking-tight font-display">
+            <span className="text-[#D4AF37]">Bid</span>
+            <span className="text-[#1A1A1A] dark:text-[#E0E0E0]">Wave</span>
           </span>
         </Link>
 
-        {/* Nav Links */}
-        <div className="hidden md:flex items-center bg-gray-100/80 dark:bg-gray-900/80 rounded-xl p-1 gap-0.5">
+        {/* ── Nav Links ── */}
+        <div className="hidden md:flex items-center bg-[#4B0082]/5 dark:bg-[#9D4EDD]/10 rounded-xl p-1 gap-0.5">
           {getNavLinks(user).map((link) => {
             const isActive = location.pathname === link.to;
             return (
@@ -67,11 +64,11 @@ function Navbar() {
                 key={link.to}
                 to={link.to}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
-          ${
-            isActive
-              ? "bg-white dark:bg-gray-800 text-orange-500 shadow-sm"
-              : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-          }`}
+                  ${
+                    isActive
+                      ? "bg-white dark:bg-[#1E1E1E] text-[#4B0082] dark:text-[#9D4EDD] shadow-sm"
+                      : "text-[#737373] dark:text-[#A0A0A0] hover:text-[#1A1A1A] dark:hover:text-[#E0E0E0]"
+                  }`}
               >
                 {link.label}
               </Link>
@@ -79,75 +76,77 @@ function Navbar() {
           })}
         </div>
 
-        {/* Right Side */}
+        {/* ── Right Side ── */}
         <div className="flex items-center gap-2">
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-900 text-gray-500 dark:text-gray-400 hover:text-orange-500 transition-all duration-200 hover:scale-105"
+            className="p-2.5 rounded-xl bg-[#4B0082]/5 dark:bg-[#9D4EDD]/10 text-[#737373] dark:text-[#A0A0A0] hover:text-[#4B0082] dark:hover:text-[#9D4EDD] transition-all duration-200 hover:scale-105"
           >
             {isDark ? <Sun size={17} /> : <Moon size={17} />}
           </button>
 
-          <div className="w-px h-5 bg-gray-200 dark:bg-gray-800 mx-1" />
+          <div className="w-px h-5 bg-[#4B0082]/15 dark:bg-[#9D4EDD]/15 mx-1" />
 
           {user ? (
-            /* Logged In — User Dropdown */
             <div className="relative">
               <button
                 onClick={() => setDropOpen(!dropOpen)}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-900 hover:bg-gray-200 dark:hover:bg-gray-800 transition-all"
+                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#4B0082]/5 dark:bg-[#9D4EDD]/10 hover:bg-[#4B0082]/10 dark:hover:bg-[#9D4EDD]/20 transition-all"
               >
                 {user.avatar_url ? (
                   <img
                     src={user.avatar_url}
                     alt={user.name}
-                    className="w-6 h-6 rounded-full object-cover"
+                    className="w-6 h-6 rounded-full object-cover ring-1 ring-[#D4AF37]/40"
                   />
                 ) : (
-                  <div className="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold">
+                  <div className="w-6 h-6 rounded-full bg-[#4B0082] dark:bg-[#9D4EDD] flex items-center justify-center text-white text-xs font-bold">
                     {user.name?.charAt(0).toUpperCase()}
                   </div>
                 )}
-                <span className="text-sm font-medium text-gray-900 dark:text-white hidden md:block">
+                <span className="text-sm font-medium text-[#1A1A1A] dark:text-[#E0E0E0] hidden md:block">
                   {user.name?.split(" ")[0]}
                 </span>
                 <ChevronDown
                   size={14}
-                  className={`text-gray-400 transition-transform ${dropOpen ? "rotate-180" : ""}`}
+                  className={`text-[#737373] transition-transform ${dropOpen ? "rotate-180" : ""}`}
                 />
               </button>
 
               {dropOpen && (
-                <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl shadow-lg overflow-hidden z-50">
-                  <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 dark:border-gray-800">
+                <div className="absolute right-0 top-full mt-2 w-52 bg-white dark:bg-[#1E1E1E] border border-[#4B0082]/10 dark:border-[#9D4EDD]/20 rounded-2xl shadow-xl overflow-hidden z-50">
+                  {/* User header */}
+                  <div className="flex items-center gap-3 px-4 py-3.5 border-b border-[#4B0082]/10 dark:border-[#9D4EDD]/10 bg-[#4B0082]/5 dark:bg-[#9D4EDD]/10">
                     {user.avatar_url ? (
                       <img
                         src={user.avatar_url}
                         alt={user.name}
-                        className="w-9 h-9 rounded-full object-cover shrink-0"
+                        className="w-9 h-9 rounded-full object-cover shrink-0 ring-2 ring-[#D4AF37]/40"
                       />
                     ) : (
-                      <div className="w-9 h-9 rounded-full bg-orange-500 flex items-center justify-center text-white text-sm font-bold shrink-0">
+                      <div className="w-9 h-9 rounded-full bg-[#4B0082] dark:bg-[#9D4EDD] flex items-center justify-center text-white text-sm font-bold shrink-0">
                         {user.name?.charAt(0).toUpperCase()}
                       </div>
                     )}
                     <div className="min-w-0">
-                      <p className="text-xs font-bold text-gray-900 dark:text-white truncate">
+                      <p className="text-xs font-bold text-[#1A1A1A] dark:text-[#E0E0E0] truncate">
                         {user.name}
                       </p>
-                      <p className="text-xs text-gray-400 mt-0.5 truncate">
+                      <p className="text-[11px] text-[#737373] dark:text-[#A0A0A0] mt-0.5 truncate">
                         {user.email}
                       </p>
                     </div>
                   </div>
+
                   <Link
                     to="/profile"
                     onClick={() => setDropOpen(false)}
-                    className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#737373] dark:text-[#A0A0A0] hover:bg-[#4B0082]/5 dark:hover:bg-[#9D4EDD]/10 hover:text-[#4B0082] dark:hover:text-[#9D4EDD] transition-colors"
                   >
                     <User size={14} /> My Profile
                   </Link>
+
                   <Link
                     to={
                       user.role === "seller"
@@ -157,16 +156,19 @@ function Navbar() {
                           : "/dashboard/buyer"
                     }
                     onClick={() => setDropOpen(false)}
-                    className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#737373] dark:text-[#A0A0A0] hover:bg-[#4B0082]/5 dark:hover:bg-[#9D4EDD]/10 hover:text-[#4B0082] dark:hover:text-[#9D4EDD] transition-colors"
                   >
                     <LayoutDashboard size={14} /> Dashboard
                   </Link>
+
+                  <div className="border-t border-[#4B0082]/10 dark:border-[#9D4EDD]/10" />
+
                   <button
                     onClick={() => {
                       logout();
                       setDropOpen(false);
                     }}
-                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                    className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#B22222] dark:text-[#FF6666] hover:bg-[#B22222]/5 dark:hover:bg-[#FF6666]/10 transition-colors"
                   >
                     <LogOut size={14} /> Sign Out
                   </button>
@@ -174,20 +176,20 @@ function Navbar() {
               )}
             </div>
           ) : (
-            /* Not Logged In */
             <>
               <Link
                 to="/login"
-                className="hidden md:block px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-900 transition-all"
+                className="hidden md:block px-4 py-2 text-sm font-medium text-[#737373] dark:text-[#A0A0A0] hover:text-[#4B0082] dark:hover:text-[#9D4EDD] rounded-lg transition-all"
               >
                 Login
               </Link>
               <Link
                 to="/register"
-                className="relative group px-4 py-2 text-sm font-semibold text-white rounded-xl overflow-hidden transition-all hover:scale-105"
+                className="relative group px-5 py-2 text-sm font-semibold text-white dark:text-[#121212] rounded-xl overflow-hidden transition-all hover:scale-105"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-orange-600 group-hover:from-orange-400 group-hover:to-orange-500 transition-all" />
-                <span className="relative">Get Started</span>
+                <div className="absolute inset-0 bg-[#D4AF37] dark:bg-[#FFD700] group-hover:brightness-110 transition-all" />
+                <div className="absolute inset-0 bg-[#D4AF37] dark:bg-[#FFD700] blur-md opacity-0 group-hover:opacity-40 transition-opacity" />
+                <span className="relative text-[#1A1A1A]">Get Started</span>
               </Link>
             </>
           )}
@@ -195,7 +197,7 @@ function Navbar() {
           {/* Mobile Menu */}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden p-2 rounded-xl bg-gray-100 dark:bg-gray-900 text-gray-500 transition-colors"
+            className="md:hidden p-2 rounded-xl bg-[#4B0082]/5 dark:bg-[#9D4EDD]/10 text-[#737373] transition-colors"
           >
             <ChevronDown
               size={18}
@@ -207,25 +209,25 @@ function Navbar() {
 
       {/* Mobile Menu */}
       {menuOpen && (
-        <div className="relative md:hidden border-t border-gray-100 dark:border-gray-800 bg-white/90 dark:bg-gray-950/90 backdrop-blur-xl px-6 py-4 flex flex-col gap-2">
-          {navLinks.map((link) => (
+        <div className="relative md:hidden border-t border-[#4B0082]/10 dark:border-[#9D4EDD]/10 bg-[#FAF9F6]/90 dark:bg-[#121212]/90 backdrop-blur-xl px-6 py-4 flex flex-col gap-2">
+          {getNavLinks(user).map((link) => (
             <Link
               key={link.to}
               to={link.to}
               onClick={() => setMenuOpen(false)}
-              className="px-4 py-2.5 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 hover:text-orange-500 transition-all"
+              className="px-4 py-2.5 rounded-xl text-sm font-medium text-[#737373] dark:text-[#A0A0A0] hover:bg-[#4B0082]/5 dark:hover:bg-[#9D4EDD]/10 hover:text-[#4B0082] dark:hover:text-[#9D4EDD] transition-all"
             >
               {link.label}
             </Link>
           ))}
-          <div className="border-t border-gray-100 dark:border-gray-800 pt-3 mt-1 flex gap-2">
+          <div className="border-t border-[#4B0082]/10 dark:border-[#9D4EDD]/10 pt-3 mt-1 flex gap-2">
             {user ? (
               <button
                 onClick={() => {
                   logout();
                   setMenuOpen(false);
                 }}
-                className="flex-1 text-center py-2.5 rounded-xl text-sm font-medium border border-gray-200 dark:border-gray-800 text-red-500"
+                className="flex-1 text-center py-2.5 rounded-xl text-sm font-medium border border-[#B22222]/30 text-[#B22222] dark:text-[#FF6666]"
               >
                 Sign Out
               </button>
@@ -234,14 +236,14 @@ function Navbar() {
                 <Link
                   to="/login"
                   onClick={() => setMenuOpen(false)}
-                  className="flex-1 text-center py-2.5 rounded-xl text-sm font-medium border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400"
+                  className="flex-1 text-center py-2.5 rounded-xl text-sm font-medium border border-[#4B0082]/20 dark:border-[#9D4EDD]/20 text-[#737373] dark:text-[#A0A0A0]"
                 >
                   Login
                 </Link>
                 <Link
                   to="/register"
                   onClick={() => setMenuOpen(false)}
-                  className="flex-1 text-center py-2.5 rounded-xl text-sm font-semibold bg-orange-500 text-white"
+                  className="flex-1 text-center py-2.5 rounded-xl text-sm font-semibold bg-[#D4AF37] dark:bg-[#FFD700] text-[#1A1A1A]"
                 >
                   Get Started
                 </Link>
@@ -253,5 +255,3 @@ function Navbar() {
     </nav>
   );
 }
-
-export default Navbar;

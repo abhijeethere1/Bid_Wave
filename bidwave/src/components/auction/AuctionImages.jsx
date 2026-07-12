@@ -2,8 +2,6 @@ import { useState } from "react";
 
 export default function AuctionImages({ images = [], title }) {
   const [active, setActive] = useState(0);
-
-  // Fallback if no images
   const displayImages =
     images.length > 0
       ? images
@@ -13,9 +11,8 @@ export default function AuctionImages({ images = [], title }) {
 
   return (
     <div>
-      {/* Main Image */}
       <div
-        className="rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-800"
+        className="rounded-2xl overflow-hidden bg-[#FAF9F6] dark:bg-[#121212] border border-[#4B0082]/8 dark:border-[#9D4EDD]/15"
         style={{ height: "320px" }}
       >
         <img
@@ -24,8 +21,6 @@ export default function AuctionImages({ images = [], title }) {
           className="w-full h-full object-cover"
         />
       </div>
-
-      {/* Thumbnails — only show if more than 1 image */}
       {displayImages.length > 1 && (
         <div className="flex gap-2 mt-3">
           {displayImages.map((img, i) => (
@@ -35,8 +30,8 @@ export default function AuctionImages({ images = [], title }) {
               className={`rounded-xl overflow-hidden border-2 transition-all shrink-0
                 ${
                   active === i
-                    ? "border-orange-500"
-                    : "border-gray-200 dark:border-gray-700 opacity-50 hover:opacity-80"
+                    ? "border-[#D4AF37] dark:border-[#FFD700]"
+                    : "border-transparent opacity-40 hover:opacity-70"
                 }`}
               style={{ width: 64, height: 64 }}
             >

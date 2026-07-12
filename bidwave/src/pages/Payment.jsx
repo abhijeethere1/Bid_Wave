@@ -18,7 +18,7 @@ export default function Payment() {
       try {
         const res = await api.post("/payments/create-order", { paymentId });
         setPayment(res.data);
-      } catch (err) {
+      } catch {
         toast.error("Failed to load payment");
         navigate("/dashboard/buyer");
       }
@@ -54,14 +54,9 @@ export default function Payment() {
         }
         setPaying(false);
       },
-      prefill: {
-        name: "BidWave User",
-        email: "",
-      },
-      theme: { color: "#f97316" },
-      modal: {
-        ondismiss: () => setPaying(false),
-      },
+      prefill: { name: "BidWave User", email: "" },
+      theme: { color: "#4B0082" },
+      modal: { ondismiss: () => setPaying(false) },
     };
 
     const rzp = new window.Razorpay(options);
@@ -70,31 +65,34 @@ export default function Payment() {
 
   if (loading)
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-[#FAF9F6] dark:bg-[#121212]">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-gray-400">Loading payment...</p>
+          <div className="w-8 h-8 border-2 border-[#4B0082] dark:border-[#9D4EDD] border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-[#737373] dark:text-[#A0A0A0]">
+            Loading payment...
+          </p>
         </div>
       </div>
     );
 
   if (paid)
     return (
-      <div className="min-h-screen flex items-center justify-center px-6">
+      <div className="min-h-screen flex items-center justify-center px-6 bg-[#FAF9F6] dark:bg-[#121212]">
         <div className="text-center max-w-sm">
-          <div className="w-16 h-16 bg-green-100 dark:bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-3xl">🎉</span>
+          <div className="w-20 h-20 bg-[#D4AF37]/10 dark:bg-[#FFD700]/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <span className="text-4xl">🎉</span>
           </div>
-          <h2 className="text-2xl font-black text-gray-900 dark:text-white">
+          <h2 className="font-display text-2xl font-black text-[#1A1A1A] dark:text-[#E0E0E0]">
             Payment Successful!
           </h2>
-          <p className="text-gray-400 text-sm mt-2 leading-relaxed">
+          <p className="text-[#737373] dark:text-[#A0A0A0] text-sm mt-3 leading-relaxed">
+            ₹{payment?.payment?.total_amount?.toLocaleString("en-IN")} paid.
             Your payment is held securely in escrow. The seller has been
             notified to ship the item.
           </p>
           <Link
             to="/dashboard/buyer"
-            className="inline-block mt-6 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold text-sm rounded-xl transition-all"
+            className="inline-block mt-6 px-6 py-3 bg-[#4B0082] dark:bg-[#9D4EDD] hover:brightness-110 text-white font-semibold text-sm rounded-xl transition-all shadow-[0_4px_24px_rgba(75,0,130,0.25)]"
           >
             View Dashboard
           </Link>
@@ -105,45 +103,43 @@ export default function Payment() {
   const p = payment?.payment;
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors duration-300">
+    <div className="min-h-screen bg-[#FAF9F6] dark:bg-[#121212] transition-colors duration-300">
       <div className="max-w-md mx-auto px-6 py-10">
         <Link
           to="/dashboard/buyer"
-          className="inline-flex items-center gap-1 text-sm text-gray-400 hover:text-orange-500 transition-colors mb-8"
+          className="inline-flex items-center gap-1 text-sm text-[#737373] dark:text-[#A0A0A0] hover:text-[#4B0082] dark:hover:text-[#9D4EDD] transition-colors mb-8"
         >
           <ChevronLeft size={15} /> Back to Dashboard
         </Link>
 
         <div className="mb-8 ml-2">
-          <h1 className="text-2xl font-black text-gray-900 dark:text-white">
+          <h1 className="font-display text-2xl font-black text-[#1A1A1A] dark:text-[#E0E0E0]">
             Complete Payment
           </h1>
-          <p className="text-sm text-gray-400 mt-1">
-            Your payment is held securely until delivery is confirmed.
+          <p className="text-sm text-[#737373] dark:text-[#A0A0A0] mt-1">
+            Secured by escrow — released only after delivery.
           </p>
         </div>
 
         {/* Order Summary */}
-        <div className="bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-5 space-y-4 mb-6">
-          <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+        <div className="bg-white dark:bg-[#1E1E1E] border border-[#4B0082]/10 dark:border-[#9D4EDD]/15 rounded-2xl p-5 mb-6 shadow-[0_4px_24px_rgba(75,0,130,0.06)]">
+          <p className="text-xs font-bold text-[#737373] dark:text-[#A0A0A0] uppercase tracking-widest mb-4">
             Order Summary
           </p>
-
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 mb-4">
             <img
               src={
                 p?.auction?.images?.[0] ||
                 "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100&fit=crop"
               }
               alt={p?.auction?.title}
-              className="w-14 h-14 rounded-xl object-cover shrink-0 border border-gray-100 dark:border-gray-700"
+              className="w-14 h-14 rounded-xl object-cover shrink-0 border border-[#4B0082]/8 dark:border-[#9D4EDD]/10"
             />
-            <p className="text-sm font-bold text-gray-900 dark:text-white flex-1 min-w-0">
+            <p className="text-sm font-bold text-[#1A1A1A] dark:text-[#E0E0E0] flex-1 min-w-0">
               {p?.auction?.title}
             </p>
           </div>
-
-          <div className="space-y-2.5 pt-3 border-t border-gray-200 dark:border-gray-700">
+          <div className="space-y-2.5 pt-3 border-t border-[#4B0082]/8 dark:border-[#9D4EDD]/10">
             {[
               {
                 label: "Winning Bid",
@@ -162,17 +158,19 @@ export default function Payment() {
                 key={row.label}
                 className="flex items-center justify-between"
               >
-                <p className="text-xs text-gray-400">{row.label}</p>
-                <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                <p className="text-xs text-[#737373] dark:text-[#A0A0A0]">
+                  {row.label}
+                </p>
+                <p className="text-xs font-semibold text-[#1A1A1A] dark:text-[#E0E0E0]">
                   {row.value}
                 </p>
               </div>
             ))}
-            <div className="flex items-center justify-between pt-2.5 border-t border-gray-200 dark:border-gray-700">
-              <p className="text-sm font-bold text-gray-900 dark:text-white">
+            <div className="flex items-center justify-between pt-2.5 border-t border-[#4B0082]/8 dark:border-[#9D4EDD]/10">
+              <p className="text-sm font-bold text-[#1A1A1A] dark:text-[#E0E0E0]">
                 Total
               </p>
-              <p className="text-lg font-black text-orange-500">
+              <p className="text-lg font-black text-[#D4AF37] dark:text-[#FFD700]">
                 ₹{p?.total_amount?.toLocaleString("en-IN")}
               </p>
             </div>
@@ -183,7 +181,7 @@ export default function Payment() {
         <button
           onClick={handlePayment}
           disabled={paying}
-          className="w-full py-4 bg-orange-500 hover:bg-orange-600 disabled:opacity-60 text-white font-bold text-sm rounded-xl shadow-lg shadow-orange-500/20 transition-all flex items-center justify-center gap-2"
+          className="w-full py-4 bg-[#D4AF37] dark:bg-[#FFD700] hover:brightness-110 disabled:opacity-60 text-[#1A1A1A] font-bold text-sm rounded-xl shadow-[0_4px_24px_rgba(212,175,55,0.30)] transition-all flex items-center justify-center gap-2"
         >
           <Lock size={15} />
           {paying
@@ -191,9 +189,8 @@ export default function Payment() {
             : `Pay ₹${p?.total_amount?.toLocaleString("en-IN")}`}
         </button>
 
-        {/* Trust */}
-        <div className="flex items-center justify-center gap-2 mt-4 text-xs text-gray-400">
-          <Shield size={12} className="text-green-500" />
+        <div className="flex items-center justify-center gap-2 mt-4 text-xs text-[#737373] dark:text-[#A0A0A0]">
+          <Shield size={12} className="text-[#2E8B57] dark:text-[#4EBA75]" />
           Secured by Razorpay · 100% safe & encrypted
         </div>
       </div>

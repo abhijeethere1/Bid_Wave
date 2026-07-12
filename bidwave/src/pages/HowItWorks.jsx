@@ -14,25 +14,25 @@ import { useAuth } from "../context/AuthContext";
 const STEPS_BUYER = [
   {
     step: "01",
-    icon: <Gavel size={22} className="text-orange-500" />,
+    icon: <Gavel size={22} />,
     title: "Browse & Bid",
     desc: "Browse live auctions and place a bid higher than the current amount. Live countdown timers show exactly when each auction ends.",
   },
   {
     step: "02",
-    icon: <Zap size={22} className="text-orange-500" />,
+    icon: <Zap size={22} />,
     title: "Win the Auction",
     desc: "Highest bid when the timer hits zero wins. You get notified instantly and have 48 hours to complete payment.",
   },
   {
     step: "03",
-    icon: <ShieldCheck size={22} className="text-orange-500" />,
+    icon: <ShieldCheck size={22} />,
     title: "We Verify the Item",
     desc: "The seller ships to our fulfillment center. Our team physically checks the item matches the listing before dispatch.",
   },
   {
     step: "04",
-    icon: <Truck size={22} className="text-orange-500" />,
+    icon: <Truck size={22} />,
     title: "Safe Delivery",
     desc: "We deliver to your address with full tracking. Confirm receipt and the seller gets paid. Simple and scam-free.",
   },
@@ -41,25 +41,25 @@ const STEPS_BUYER = [
 const STEPS_SELLER = [
   {
     step: "01",
-    icon: <Package size={22} className="text-orange-500" />,
+    icon: <Package size={22} />,
     title: "List Your Item",
     desc: "Upload photos and our AI auto-generates the title and description. Set a starting price and choose when your auction ends.",
   },
   {
     step: "02",
-    icon: <Timer size={22} className="text-orange-500" />,
+    icon: <Timer size={22} />,
     title: "Auction Goes Live",
     desc: "Your item is instantly visible to thousands of buyers. Watch bids come in live on your seller dashboard.",
   },
   {
     step: "03",
-    icon: <BadgeCheck size={22} className="text-orange-500" />,
-    title: "Ship to Our Center",
+    icon: <BadgeCheck size={22} />,
+    title: "Ship to Center",
     desc: "Once the auction ends and buyer pays, ship the item to our nearest fulfillment center. We handle the rest.",
   },
   {
     step: "04",
-    icon: <Zap size={22} className="text-orange-500" />,
+    icon: <Zap size={22} />,
     title: "Get Paid Fast",
     desc: "After the buyer confirms delivery, we transfer your earnings directly. Typically within 2-3 business days.",
   },
@@ -96,17 +96,19 @@ function StepCard({ step, icon, title, desc }) {
   return (
     <div className="flex gap-5">
       <div className="shrink-0 flex flex-col items-center gap-2">
-        <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-xl bg-[#4B0082]/8 dark:bg-[#9D4EDD]/10 flex items-center justify-center text-[#4B0082] dark:text-[#9D4EDD]">
           {icon}
         </div>
-        <div className="w-px flex-1 bg-orange-100 dark:bg-orange-500/20" />
+        <div className="w-px flex-1 bg-[#4B0082]/10 dark:bg-[#9D4EDD]/15" />
       </div>
       <div className="pb-8">
-        <p className="text-xs font-bold text-orange-500 mb-1">{step}</p>
-        <h3 className="text-base font-bold text-gray-900 dark:text-white mb-1.5">
+        <p className="text-xs font-bold text-[#D4AF37] dark:text-[#FFD700] mb-1 tracking-widest">
+          {step}
+        </p>
+        <h3 className="text-base font-bold text-[#1A1A1A] dark:text-[#E0E0E0] mb-1.5">
           {title}
         </h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+        <p className="text-sm text-[#737373] dark:text-[#A0A0A0] leading-relaxed">
           {desc}
         </p>
       </div>
@@ -116,15 +118,16 @@ function StepCard({ step, icon, title, desc }) {
 
 export default function HowItWorks() {
   const { user } = useAuth();
+
   return (
-    <div className="min-h-screen bg-orange-50 dark:bg-gray-950 transition-colors duration-300">
+    <div className="min-h-screen bg-[#FAF9F6] dark:bg-[#121212] transition-colors duration-300">
       <div className="max-w-4xl mx-auto px-6 py-12">
         {/* Header */}
         <div className="text-center mb-14 ml-2">
-          <h1 className="text-3xl font-black text-gray-900 dark:text-white">
+          <h1 className="font-display text-3xl font-black text-[#1A1A1A] dark:text-[#E0E0E0]">
             How BidWave Works
           </h1>
-          <p className="text-gray-400 mt-3 max-w-xl mx-auto text-sm leading-relaxed">
+          <p className="text-[#737373] dark:text-[#A0A0A0] mt-3 max-w-xl mx-auto text-sm leading-relaxed">
             A transparent, scam-free auction platform. We handle verification,
             payments and delivery — so you can focus on bidding and winning.
           </p>
@@ -132,11 +135,10 @@ export default function HowItWorks() {
 
         {/* Buyer + Seller */}
         <div className="grid md:grid-cols-2 gap-10 mb-16">
-          {/* Buyer */}
           <div>
             <div className="flex items-center gap-2 mb-6 ml-2">
-              <span className="w-2 h-2 bg-orange-500 rounded-full" />
-              <h2 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide">
+              <span className="w-2 h-2 bg-[#D4AF37] dark:bg-[#FFD700] rounded-full" />
+              <h2 className="text-sm font-bold text-[#1A1A1A] dark:text-[#E0E0E0] uppercase tracking-widest">
                 For Buyers
               </h2>
             </div>
@@ -144,12 +146,10 @@ export default function HowItWorks() {
               <StepCard key={s.step} {...s} />
             ))}
           </div>
-
-          {/* Seller */}
           <div>
             <div className="flex items-center gap-2 mb-6 ml-2">
-              <span className="w-2 h-2 bg-orange-500 rounded-full" />
-              <h2 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide">
+              <span className="w-2 h-2 bg-[#4B0082] dark:bg-[#9D4EDD] rounded-full" />
+              <h2 className="text-sm font-bold text-[#1A1A1A] dark:text-[#E0E0E0] uppercase tracking-widest">
                 For Sellers
               </h2>
             </div>
@@ -159,12 +159,11 @@ export default function HowItWorks() {
           </div>
         </div>
 
-        {/* Divider */}
-        <div className="border-t border-gray-100 dark:border-gray-800 mb-14" />
+        <div className="border-t border-[#4B0082]/8 dark:border-[#9D4EDD]/10 mb-14" />
 
         {/* Delivery Charges */}
         <div className="mb-14 ml-2">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6">
+          <h2 className="text-lg font-bold text-[#1A1A1A] dark:text-[#E0E0E0] mb-6">
             Delivery Charges
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -176,14 +175,16 @@ export default function HowItWorks() {
             ].map((item) => (
               <div
                 key={item.size}
-                className="bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-4 text-center"
+                className="bg-white dark:bg-[#1E1E1E] border border-[#4B0082]/8 dark:border-[#9D4EDD]/15 rounded-2xl p-4 text-center shadow-[0_2px_12px_rgba(75,0,130,0.04)]"
               >
                 <p className="text-2xl mb-2">{item.icon}</p>
-                <p className="text-sm font-bold text-gray-900 dark:text-white">
+                <p className="text-sm font-bold text-[#1A1A1A] dark:text-[#E0E0E0]">
                   {item.size}
                 </p>
-                <p className="text-xs text-gray-400 mt-0.5">{item.desc}</p>
-                <p className="text-base font-black text-orange-500 mt-2">
+                <p className="text-xs text-[#737373] dark:text-[#A0A0A0] mt-0.5">
+                  {item.desc}
+                </p>
+                <p className="font-display text-base font-black text-[#D4AF37] dark:text-[#FFD700] mt-2">
                   {item.fee}
                 </p>
               </div>
@@ -191,24 +192,23 @@ export default function HowItWorks() {
           </div>
         </div>
 
-        {/* Divider */}
-        <div className="border-t border-gray-100 dark:border-gray-800 mb-14" />
+        <div className="border-t border-[#4B0082]/8 dark:border-[#9D4EDD]/10 mb-14" />
 
         {/* FAQ */}
         <div className="ml-2">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6">
+          <h2 className="text-lg font-bold text-[#1A1A1A] dark:text-[#E0E0E0] mb-6">
             Frequently Asked Questions
           </h2>
           <div className="space-y-4">
             {FAQS.map((faq, i) => (
               <div
                 key={i}
-                className="border border-gray-100 dark:border-gray-800 rounded-2xl p-5"
+                className="bg-white dark:bg-[#1E1E1E] border border-[#4B0082]/8 dark:border-[#9D4EDD]/15 rounded-2xl p-5 shadow-[0_2px_12px_rgba(75,0,130,0.04)]"
               >
-                <p className="text-sm font-bold text-gray-900 dark:text-white mb-2">
+                <p className="text-sm font-bold text-[#1A1A1A] dark:text-[#E0E0E0] mb-2">
                   {faq.q}
                 </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+                <p className="text-sm text-[#737373] dark:text-[#A0A0A0] leading-relaxed">
                   {faq.a}
                 </p>
               </div>
@@ -217,25 +217,25 @@ export default function HowItWorks() {
         </div>
 
         {/* CTA */}
-        <div className="mt-14 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-3xl p-10 text-center">
-          <h2 className="text-2xl font-black text-gray-900 dark:text-white">
+        <div className="mt-14 bg-white dark:bg-[#1E1E1E] border border-[#4B0082]/10 dark:border-[#9D4EDD]/15 rounded-3xl p-10 text-center shadow-[0_4px_24px_rgba(75,0,130,0.06)]">
+          <h2 className="font-display text-2xl font-black text-[#1A1A1A] dark:text-[#E0E0E0]">
             Ready to get started?
           </h2>
-          <p className="text-gray-400 text-sm mt-2">
+          <p className="text-[#737373] dark:text-[#A0A0A0] text-sm mt-2">
             Join thousands of buyers and sellers on BidWave.
           </p>
           <div className="flex items-center justify-center gap-3 mt-6">
             {!user && (
               <Link
                 to="/register"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold text-sm rounded-xl transition-all shadow-md shadow-orange-500/20"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-[#D4AF37] dark:bg-[#FFD700] hover:brightness-110 text-[#1A1A1A] font-bold text-sm rounded-xl transition-all shadow-[0_4px_16px_rgba(212,175,55,0.25)]"
               >
                 Create Free Account <ArrowRight size={16} />
               </Link>
             )}
             <Link
               to="/auctions"
-              className="inline-flex items-center gap-2 px-6 py-3 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 font-semibold text-sm rounded-xl hover:border-orange-300 transition-all"
+              className="inline-flex items-center gap-2 px-6 py-3 border border-[#4B0082]/15 dark:border-[#9D4EDD]/20 text-[#4B0082] dark:text-[#9D4EDD] font-semibold text-sm rounded-xl hover:border-[#D4AF37]/40 dark:hover:border-[#FFD700]/30 hover:text-[#D4AF37] dark:hover:text-[#FFD700] transition-all"
             >
               Browse Auctions
             </Link>

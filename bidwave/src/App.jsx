@@ -12,61 +12,38 @@ import SellItem from "./pages/SellItem";
 import BuyerDashboard from "./pages/BuyerDashboard";
 import SellerDashboard from "./pages/SellerDashboard";
 import HowItWorks from "./pages/HowItWorks";
-import Payment from "./pages/Payment";
 import AdminDashboard from "./pages/AdminDashboard";
 import Profile from "./pages/Profile";
+import Payment from "./pages/Payment";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 
 function App() {
   return (
     <BrowserRouter>
-      <div className="bg-orange-50 dark:bg-gray-950 min-h-screen transition-colors duration-300">
+      <div className="bg-[#FAF9F6] dark:bg-[#121212] min-h-screen transition-colors duration-300 font-sans">
         <Toaster
           position="top-right"
           toastOptions={{
             style: {
-              background: "#1f2937",
-              color: "#fff",
-              fontSize: "14px",
-              borderRadius: "12px",
+              background: "#1E1E1E",
+              color: "#E0E0E0",
+              fontSize: "13px",
+              borderRadius: "8px",
+              border: "1px solid #D4AF3730",
+              fontFamily: "Inter, sans-serif",
             },
           }}
         />
         <Navbar />
         <ChatWidget />
         <Routes>
-          {/* Public Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
-          {/* Protected Routes */}
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/payment/:paymentId"
-            element={
-              <ProtectedRoute>
-                <Payment />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute>
-                <AdminDashboard />
-              </ProtectedRoute>
-            }
-          />
           <Route
             path="/auctions"
             element={
@@ -91,7 +68,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/how-it-works" element={<HowItWorks />} />
           <Route
             path="/dashboard/buyer"
             element={
@@ -105,6 +81,30 @@ function App() {
             element={
               <ProtectedRoute>
                 <SellerDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/payment/:paymentId"
+            element={
+              <ProtectedRoute>
+                <Payment />
               </ProtectedRoute>
             }
           />

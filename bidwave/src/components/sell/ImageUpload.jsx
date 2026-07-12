@@ -34,15 +34,16 @@ export default function ImageUpload({
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
-        <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
-          Item Photos <span className="text-red-500">*</span>
+        <label className="text-xs font-semibold text-[#737373] dark:text-[#A0A0A0] uppercase tracking-widest">
+          Item Photos{" "}
+          <span className="text-[#B22222] dark:text-[#FF6666]">*</span>
         </label>
         {images.length > 0 && (
           <button
             type="button"
             onClick={() => onAIGenerate(images[0])}
             disabled={aiLoading}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-500 hover:text-orange-600 bg-orange-50 dark:bg-orange-500/10 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-60"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#4B0082] dark:text-[#9D4EDD] hover:text-[#D4AF37] dark:hover:text-[#FFD700] bg-[#4B0082]/8 dark:bg-[#9D4EDD]/10 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-60"
           >
             {aiLoading ? (
               <>
@@ -62,16 +63,22 @@ export default function ImageUpload({
         onDrop={handleDrop}
         onDragOver={(e) => e.preventDefault()}
         onClick={() => inputRef.current.click()}
-        className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl p-8 text-center cursor-pointer hover:border-orange-400 dark:hover:border-orange-500 hover:bg-orange-50/50 dark:hover:bg-orange-500/5 transition-all"
+        className="border-2 border-dashed border-[#4B0082]/15 dark:border-[#9D4EDD]/20 rounded-2xl p-8 text-center cursor-pointer hover:border-[#D4AF37]/40 dark:hover:border-[#FFD700]/30 hover:bg-[#D4AF37]/5 dark:hover:bg-[#FFD700]/5 transition-all"
       >
         <div className="flex flex-col items-center gap-2">
-          <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-            <ImagePlus size={20} className="text-gray-400" />
+          <div className="w-10 h-10 rounded-xl bg-[#4B0082]/8 dark:bg-[#9D4EDD]/10 flex items-center justify-center">
+            <ImagePlus
+              size={20}
+              className="text-[#4B0082] dark:text-[#9D4EDD]"
+            />
           </div>
-          <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-            Drop photos here or <span className="text-orange-500">browse</span>
+          <p className="text-sm font-medium text-[#1A1A1A] dark:text-[#E0E0E0]">
+            Drop photos here or{" "}
+            <span className="text-[#D4AF37] dark:text-[#FFD700]">browse</span>
           </p>
-          <p className="text-xs text-gray-400">Up to 4 photos · JPG, PNG</p>
+          <p className="text-xs text-[#737373] dark:text-[#A0A0A0]">
+            Up to 4 photos · JPG, PNG
+          </p>
         </div>
         <input
           ref={inputRef}
@@ -89,7 +96,7 @@ export default function ImageUpload({
           {images.map((img, i) => (
             <div
               key={img.id}
-              className="relative group rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700"
+              className="relative group rounded-xl overflow-hidden border border-[#4B0082]/10 dark:border-[#9D4EDD]/15"
               style={{ height: "80px" }}
             >
               <img
@@ -98,7 +105,7 @@ export default function ImageUpload({
                 className="w-full h-full object-cover"
               />
               {i === 0 && (
-                <span className="absolute bottom-1 left-1 text-[10px] bg-black/60 text-white px-1.5 py-0.5 rounded-md">
+                <span className="absolute bottom-1 left-1 text-[10px] bg-[#1A1A1A]/70 text-white px-1.5 py-0.5 rounded-md">
                   Main
                 </span>
               )}
@@ -108,7 +115,7 @@ export default function ImageUpload({
                   e.stopPropagation();
                   removeImage(img.id);
                 }}
-                className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full items-center justify-center hidden group-hover:flex"
+                className="absolute top-1 right-1 w-5 h-5 bg-[#B22222] text-white rounded-full items-center justify-center hidden group-hover:flex"
               >
                 <X size={10} />
               </button>
