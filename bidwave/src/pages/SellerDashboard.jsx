@@ -56,16 +56,22 @@ export default function SellerDashboard() {
 
   function getListingStatus(auction) {
     if (auction.status === "live") return "live";
+
     if (auction.status === "ended") {
-      const hasPaid = auction.payments?.some(
-        (p) => p.status === "paid" || p.status === "released",
-      );
-      if (hasPaid) return "awaiting_shipment";
+      const payment = auction.payments?.[0];
+
+      if (!payment) return "ended"; // no winner / no bids
+
+      if (payment.status === "released") return "payment_released";
+      if (payment.status === "paid") return "awaiting_shipment";
+      if (payment.status === "pending") return "payment_pending_buyer";
+
       return "ended";
     }
     return "ended";
   }
 
+  // Also update the listings mapping to include payment info
   const listings =
     data?.listings?.map((auction) => ({
       id: auction.id,
@@ -77,6 +83,8 @@ export default function SellerDashboard() {
       totalBids: auction.total_bids,
       endsAt: auction.ends_at,
       status: getListingStatus(auction),
+      hasBids: auction.bids?.length > 0 || auction.total_bids > 0,
+      paymentStatus: auction.payments?.[0]?.status || null,
     })) || [];
 
   return (

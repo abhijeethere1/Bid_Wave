@@ -62,7 +62,11 @@ export const getSellerDashboard = async (req, res) => {
     const { data: auctions } = await supabase
       .from("auctions")
       .select(
-        `*, payments(id, status, total_amount, auction_amount, buyer_id, created_at)`,
+        `
+        *,
+        payments(id, status, total_amount, auction_amount, buyer_id, created_at),
+        bids(id, amount)
+      `,
       )
       .eq("seller_id", sellerId)
       .order("created_at", { ascending: false });
@@ -78,7 +82,6 @@ export const getSellerDashboard = async (req, res) => {
         return sum + released.reduce((s, p) => s + p.auction_amount, 0);
       }, 0) || 0;
 
-    // Pending payout = payments where buyer paid OR payment pending
     const pendingPayout =
       auctions?.reduce((sum, a) => {
         const pending =
