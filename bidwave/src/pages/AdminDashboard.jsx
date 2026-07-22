@@ -45,19 +45,37 @@ const STATUS_LABEL = {
 export default function AdminDashboard() {
   const [flags, setFlags] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [verifications, setVerifications] = useState([]);
 
   useEffect(() => {
     fetchFlags();
   }, []);
 
+  // Add to fetchFlags:
   const fetchFlags = async () => {
     try {
-      const res = await api.get("/admin/flagged");
-      setFlags(res.data);
+      const [flagsRes, verifyRes] = await Promise.all([
+        api.get("/admin/flagged"),
+        api.get("/admin/pending-verifications"),
+      ]);
+      setFlags(flagsRes.data);
+      setVerifications(verifyRes.data);
     } catch {
-      toast.error("Failed to load flagged auctions");
+      toast.error("Failed to load admin data");
     }
     setLoading(false);
+  };
+
+  const handleVerify = async (auctionId) => {
+    try {
+      await api.post(`/admin/verify-shipment/${auctionId}`);
+      toast.success("Item verified! Payment released to seller.");
+      setVerifications((prev) =>
+        prev.filter((v) => v.auction_id !== auctionId),
+      );
+    } catch {
+      toast.error("Failed to verify shipment");
+    }
   };
 
   const updateStatus = async (id, status) => {
@@ -148,7 +166,77 @@ export default function AdminDashboard() {
             </div>
           ))}
         </div>
+        {/* Pending Verifications */}
+        {verifications.length > 0 && (
+          <div className="mb-10">
+            <div className="mt-8 mb-6 ml-2 flex items-center gap-3">
+              <h2 className="text-base font-bold text-[#1A1A1A] dark:text-[#E0E0E0]">
+                Pending Verifications
+              </h2>
+              <span className="text-xs font-medium text-white bg-[#D4AF37] dark:bg-[#FFD700] dark:text-[#1A1A1A] px-2.5 py-1 rounded-full">
+                {verifications.length} items
+              </span>
+            </div>
 
+            <div className="ml-2 flex flex-col gap-4">
+              {verifications.map((v) => (
+                <div
+                  key={v.id}
+                  className="bg-white dark:bg-[#1E1E1E] border border-[#D4AF37]/20 dark:border-[#FFD700]/15 rounded-2xl p-5 shadow-[0_2px_12px_rgba(212,175,55,0.08)]"
+                >
+                  <div className="flex items-center gap-4">
+                    <img
+                      src={
+                        v.auction?.images?.[0] ||
+                        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100&fit=crop"
+                      }
+                      alt={v.auction?.title}
+                      className="w-14 h-14 rounded-xl object-cover shrink-0 border border-[#4B0082]/8 dark:border-[#9D4EDD]/10"
+                    />
+
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-[#1A1A1A] dark:text-[#E0E0E0] truncate">
+                        {v.auction?.title}
+                      </p>
+                      <p className="text-xs text-[#737373] dark:text-[#A0A0A0] mt-0.5">
+                        Seller:{" "}
+                        <span className="font-semibold text-[#4B0082] dark:text-[#9D4EDD]">
+                          {v.auction?.seller?.name}
+                        </span>{" "}
+                        · {v.auction?.seller?.email}
+                      </p>
+                      <p className="text-xs text-[#737373] dark:text-[#A0A0A0] mt-0.5">
+                        Shipped on:{" "}
+                        {new Date(v.created_at).toLocaleString("en-IN", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
+                    </div>
+
+                    <div className="text-right shrink-0">
+                      <p className="text-base font-black text-[#D4AF37] dark:text-[#FFD700]">
+                        ₹{v.auction?.current_price?.toLocaleString("en-IN")}
+                      </p>
+                      <p className="text-[11px] text-[#737373] dark:text-[#A0A0A0] mb-2">
+                        final bid
+                      </p>
+                      <button
+                        onClick={() => handleVerify(v.auction_id)}
+                        className="px-4 py-2 bg-[#2E8B57] dark:bg-[#4EBA75] hover:brightness-110 text-white text-xs font-bold rounded-xl transition-all shadow-md"
+                      >
+                        ✅ Verify Arrival
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         {/* Section Header */}
         <div className="mt-8 mb-6 ml-2 flex items-center gap-3">
           <h2 className="text-base font-bold text-[#1A1A1A] dark:text-[#E0E0E0]">

@@ -11,12 +11,18 @@ export default function SellerDashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const fetchData = async () => {
+    try {
+      const res = await api.get("/dashboard/seller");
+      setData(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
-    api
-      .get("/dashboard/seller")
-      .then((res) => setData(res.data))
-      .catch((err) => console.error(err))
-      .finally(() => setLoading(false));
+    fetchData();
   }, []);
 
   if (loading)
@@ -59,11 +65,24 @@ export default function SellerDashboard() {
 
     if (auction.status === "ended") {
       const payment = auction.payments?.[0];
+      const shipment = auction.shipments?.[0];
 
-      if (!payment) return "ended"; // no winner / no bids
+      if (!payment) return "ended"; // no winner
 
+      // Payment released — fully done
       if (payment.status === "released") return "payment_released";
+
+      // Item verified by admin — processing payout
+      if (shipment?.status === "verified") return "payment_released";
+
+      // Seller shipped — waiting for admin verification
+      if (shipment?.status === "shipped_to_center")
+        return "waiting_verification";
+
+      // Buyer paid — seller needs to ship
       if (payment.status === "paid") return "awaiting_shipment";
+
+      // Buyer hasn't paid yet
       if (payment.status === "pending") return "payment_pending_buyer";
 
       return "ended";
@@ -83,8 +102,7 @@ export default function SellerDashboard() {
       totalBids: auction.total_bids,
       endsAt: auction.ends_at,
       status: getListingStatus(auction),
-      hasBids: auction.bids?.length > 0 || auction.total_bids > 0,
-      paymentStatus: auction.payments?.[0]?.status || null,
+      auctionId: auction.id,
     })) || [];
 
   return (
@@ -120,7 +138,11 @@ export default function SellerDashboard() {
         ) : (
           <div className="ml-2 flex flex-col gap-4">
             {listings.map((listing) => (
-              <ListingCard key={listing.id} listing={listing} />
+              <ListingCard
+                key={listing.id}
+                listing={listing}
+                onRefresh={fetchData}
+              />
             ))}
           </div>
         )}

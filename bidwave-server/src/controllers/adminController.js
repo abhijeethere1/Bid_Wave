@@ -118,3 +118,52 @@ export const updateFlagStatus = (io) => async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+export const getPendingVerifications = async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("shipments")
+      .select(
+        `
+        *,
+        auction:auctions(
+          id, title, images, current_price,
+          seller:users(id, name, email)
+        )
+      `,
+      )
+      .eq("status", "shipped_to_center")
+      .order("created_at", { ascending: true });
+
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const verifyShipment = async (req, res) => {
+  const { auctionId } = req.params;
+
+  try {
+    // 1. Update shipment to verified
+    await supabase
+      .from("shipments")
+      .update({ status: "verified" })
+      .eq("auction_id", auctionId);
+
+    // 2. Release payment to seller
+    await supabase
+      .from("payments")
+      .update({ status: "released" })
+      .eq("auction_id", auctionId);
+
+    console.log(
+      `✅ Admin verified shipment for auction ${auctionId} — Payment released`,
+    );
+    res.json({ message: "Shipment verified and payment released to seller" });
+  } catch (err) {
+    console.error("Verify shipment error:", err.message);
+    res.status(500).json({ message: err.message });
+  }
+};

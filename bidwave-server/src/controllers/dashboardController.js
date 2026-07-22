@@ -63,10 +63,11 @@ export const getSellerDashboard = async (req, res) => {
       .from("auctions")
       .select(
         `
-        *,
-        payments(id, status, total_amount, auction_amount, buyer_id, created_at),
-        bids(id, amount)
-      `,
+    *,
+    payments(id, status, total_amount, auction_amount, buyer_id, created_at),
+    shipments(id, status),
+    bids(id, amount)
+  `,
       )
       .eq("seller_id", sellerId)
       .order("created_at", { ascending: false });

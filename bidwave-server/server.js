@@ -16,7 +16,7 @@ import createAdminRoutes from "./src/routes/adminRoutes.js";
 
 import { setupSocket } from "./src/socket/bidSocket.js";
 import { startAuctionExpiryJob } from "./src/jobs/auctionExpiry.js";
-
+import shipmentRoutes from "./src/routes/shipmentRoutes.js";
 dotenv.config();
 
 const app = express();
@@ -60,6 +60,7 @@ app.use("/api/chat", chatRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/shipments", shipmentRoutes);
 app.use("/api/admin", createAdminRoutes(io));
 
 setupSocket(io);
